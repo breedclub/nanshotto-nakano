@@ -69,6 +69,9 @@
   .card.member { display: block; }
   .row-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
   .card .note { width: 100%; margin-top: 8px; min-height: 40px; font-size: 14px; }
+  .contact { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .contact input { flex: 1 1 140px; min-width: 0; font-size: 14px; }
+  .contact select { flex: 1 1 170px; min-width: 0; font-size: 14px; }
   .state { display: inline-block; min-width: 1.6em; margin-right: 4px; text-align: center; font-weight: 700; }
   .state.good { color: var(--good); }
   .state.bad { color: var(--bad); }
@@ -187,6 +190,7 @@
         : name === "updateCandidate" ? { action: "update", id: args[0], name: args[1], group: args[2] }
         : name === "setRating" ? { action: "rate", candidateId: args[0], mark: args[1] }
         : name === "setNote" ? { action: "note", id: args[0], note: args[1] }
+        : name === "setContact" ? { action: "contact", id: args[0], contactBy: args[1], contactStatus: args[2] }
         : null;
       if (!body) throw new Error("不明な操作です");
       res = await fetch(API, {
@@ -274,6 +278,33 @@
       if (ev.key === "Enter" && !ev.isComposing) note.blur();
     });
     card.appendChild(note);
+
+    // 声がけする人と声がけの状況。どちらかを変えると両方まとめて保存する
+    const contact = document.createElement("div");
+    contact.className = "contact";
+    const by = document.createElement("input");
+    by.type = "text";
+    by.maxLength = 30;
+    by.placeholder = "声がけする人";
+    by.value = c.contactBy || "";
+    by.setAttribute("aria-label", `${c.name}に声がけする人`);
+    const status = document.createElement("select");
+    status.setAttribute("aria-label", `${c.name}への声がけの状況`);
+    for (const [value, label] of CONTACT_STATUSES) {
+      const opt = document.createElement("option");
+      opt.value = value;
+      opt.textContent = label;
+      opt.selected = (c.contactStatus || "") === value;
+      status.appendChild(opt);
+    }
+    const save = () => saveContact(c.id, by.value.trim(), status.value);
+    by.addEventListener("change", save);
+    by.addEventListener("keydown", (ev) => {
+      if (ev.key === "Enter" && !ev.isComposing) by.blur();
+    });
+    status.addEventListener("change", save);
+    contact.append(by, status);
+    card.appendChild(contact);
     return card;
   }
 
@@ -288,6 +319,13 @@
   }
 
   // カテゴリは分けず、○ → △（未評価）→ × の順に並べる
+  const CONTACT_STATUSES = [
+    ["", "未声がけ"],
+    ["声がけ済み（返事待ち）", "声がけ済み（返事待ち）"],
+    ["参加", "参加"],
+    ["不参加", "不参加"],
+  ];
+
   const ORDER = [
     { mark: "○", label: "○", cls: "head-good" },
     { mark: "", label: "△", cls: "head-hold" },
@@ -308,6 +346,17 @@
       h.textContent = `${o.label}（${items.length}名）`;
       root.appendChild(h);
       appendCards(root, items);
+    }
+  }
+
+  async function saveContact(id, contactBy, contactStatus) {
+    try {
+      const saved = await call("setContact", id, contactBy, contactStatus);
+      cands = cands.map((c) => (c.id === id ? { ...c, contactBy: saved.contactBy, contactStatus: saved.contactStatus } : c));
+      setError("");
+      setStatus("声がけの情報を保存しました");
+    } catch (e) {
+      setError(`声がけの情報を保存できませんでした：${e.message}`);
     }
   }
 
