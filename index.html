@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>プレオープン招待候補</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --fg: #1a1a1a;
+    --muted: #6b7077;
+    --line: #d9dde3;
+    --head: #f3f5f8;
+    --accent: #1f5fbf;
+    --good: #1b7a3d;
+    --bad: #b3261e;
+    --card: #ffffff;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #151618;
+      --fg: #e9eaec;
+      --muted: #9aa0a6;
+      --line: #3a3d41;
+      --head: #22252a;
+      --accent: #7aa7ff;
+      --good: #6fd08c;
+      --bad: #ff8a80;
+      --card: #1c1e21;
+      color-scheme: dark;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-top: 16px;
+    padding-bottom: 96px;
+  }
+  main { max-width: 640px; margin: 0 auto; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  h2 { font-size: 15px; margin: 22px 0 8px; padding-bottom: 4px; border-bottom: 1px solid var(--line); }
+  .lead { color: var(--muted); font-size: 13px; margin: 0 0 16px; }
+  .status { font-size: 13px; color: var(--muted); min-height: 1.4em; }
+  .error { color: var(--bad); font-size: 13px; }
+  .empty { color: var(--muted); font-size: 13px; }
+  input, select, button { font: inherit; min-height: 44px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--fg); padding: 8px 12px; }
+  button { cursor: pointer; }
+  button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  button:disabled { opacity: 0.5; cursor: default; }
+  button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  form.add { display: grid; gap: 8px; margin-bottom: 8px; }
+
+  .card {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    border: 1px solid var(--line); border-radius: 8px; background: var(--card);
+    padding: 8px 10px; margin-bottom: 8px;
+  }
+  .card.editing { flex-wrap: wrap; }
+  .card.editing input, .card.editing select { flex: 1 1 140px; min-width: 0; }
+  .name { font-weight: 600; word-break: break-word; min-width: 0; }
+  .marks { display: flex; gap: 6px; flex-shrink: 0; flex-wrap: wrap; }
+  .marks button { min-width: 52px; font-weight: 700; }
+  .marks button.edit { min-width: 56px; font-weight: 600; }
+  .marks button[aria-pressed="true"].good { background: var(--good); color: #fff; border-color: var(--good); }
+  .marks button[aria-pressed="true"].bad { background: var(--bad); color: #fff; border-color: var(--bad); }
+  .tally { font-size: 12px; color: var(--muted); }
+
+  .ref { margin-top: 32px; padding-top: 4px; border-top: 1px solid var(--line); }
+  .ref ol { padding-left: 1.6em; margin: 8px 0 0; }
+  .ref li { padding: 3px 0; }
+
+  .bar {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    padding: 10px max(16px, env(safe-area-inset-right, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+    background: var(--bg); border-top: 1px solid var(--line);
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  }
+  .bar .status { flex: 1; }
+
+  dialog { border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--fg); width: min(92vw, 420px); padding: 16px; }
+  dialog::backdrop { background: rgba(0,0,0,0.4); }
+  dialog ul { list-style: none; padding: 0; margin: 0 0 12px; }
+  dialog li { padding: 6px 0; border-bottom: 1px solid var(--line); }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <h1>プレオープン招待候補</h1>
+  <p class="lead">候補を追加して、○ か × で評価してください。評価と編集は、開いた全員に共有されます。</p>
+
+  <form class="add" id="addForm">
+    <input id="newName" type="text" placeholder="名前（活動名）" maxlength="60" required>
+    <button class="primary" type="submit" id="addBtn">候補を追加</button>
+  </form>
+  <p class="error" id="error" hidden></p>
+
+  <div id="groups"></div>
+  <p class="empty" id="emptyNote" hidden>まだ候補がありません。上の欄から追加してください。</p>
+
+  <section class="ref" aria-labelledby="refHead">
+    <h2 id="refHead">参考：仲宗根側で呼ぼうとしている人（19名）</h2>
+    <p class="lead">候補リストとは別の参考情報です。評価や一覧には含まれません。</p>
+    <ol>
+      <li>中町JP</li>
+      <li>明日花キララ</li>
+      <li>ブレイキングダウン 咲人</li>
+      <li>ブレイキングダウン てる</li>
+      <li>芸人アントニー</li>
+      <li>アーティストTAKZ</li>
+      <li>元AKB永尾まりや</li>
+      <li>千葉ロッテ伊志嶺翔大</li>
+      <li>ボクシング比嘉大吾</li>
+      <li>インフルエンサー りさぶ</li>
+      <li>インフルエンサー さーちむ</li>
+      <li>YouTuberえびじゃ けす</li>
+      <li>TikTokプリンスこうや</li>
+      <li>元レペゼンぎんた</li>
+      <li>元レペゼンまる</li>
+      <li>アーティスト あやぱんだ</li>
+      <li>カラテカ入江さん</li>
+      <li>元nutsれいたぴ</li>
+      <li>ボクシング亀田興毅</li>
+    </ol>
+  </section>
+</main>
+
+<div class="bar">
+  <span class="status" id="status">読み込み中…</span>
+  <button type="button" id="listBtn">一覧を表示</button>
+</div>
+
+<dialog id="listDialog">
+  <h2 style="margin-top:0">○の候補（名前のみ）</h2>
+  <ul id="listItems"></ul>
+  <button type="button" id="closeBtn" style="width:100%">閉じる</button>
+</dialog>
+
+<script>
+(() => {
+  const GROUPS = [
+    { key: "foy", label: "レペゼン関連" },
+    { key: "youtuber", label: "YouTuber" },
+    { key: "streamer", label: "配信者" },
+    { key: "esports", label: "eスポーツ" },
+    { key: "other", label: "その他" },
+  ];
+
+  let cands = [];     // { id, name, group }
+  let ratings = {};   // candidateId -> mark
+  let editingId = null;
+
+  const $ = (id) => document.getElementById(id);
+  const setError = (msg) => { $("error").hidden = !msg; $("error").textContent = msg || ""; };
+  const setStatus = (msg) => { $("status").textContent = msg; };
+
+  const API = "https://script.google.com/macros/s/AKfycbxLk3QHOygHaXucItleZTVCuahcIf8JOqXJ7HmAEaXprc1y3YolLEy4iiGyb8iYs3JU/exec";
+
+  // GASのAPIを呼ぶ。Googleのログイン情報を送らないので、どのアカウントでログインしていても動く
+  async function call(name, ...args) {
+    let res;
+    if (name === "getState") {
+      res = await fetch(`${API}?api=state`, { credentials: "omit" });
+    } else {
+      const body = name === "addCandidate" ? { action: "add", name: args[0] }
+        : name === "updateCandidate" ? { action: "update", id: args[0], name: args[1], group: args[2] }
+        : name === "setRating" ? { action: "rate", candidateId: args[0], mark: args[1] }
+        : null;
+      if (!body) throw new Error("不明な操作です");
+      res = await fetch(API, {
+        method: "POST",
+        credentials: "omit",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(body),
+      });
+    }
+    const out = await res.json();
+    if (!out.ok) throw new Error(out.error || "エラーが発生しました");
+    return out.data;
+  }
+
+  function markOf(candidateId) {
+    return ratings[candidateId] || "";
+  }
+
+  function applyState(state) {
+    cands = state.candidates;
+    ratings = {};
+    for (const r of state.ratings) ratings[r.candidateId] = r.mark;
+    render();
+    setStatus(`${cands.length}名の候補`);
+  }
+
+  async function reload() {
+    try {
+      applyState(await call("getState"));
+      setError("");
+    } catch (e) {
+      setError(`読み込めませんでした：${e.message}`);
+    }
+  }
+
+  function render() {
+    const root = $("groups");
+    root.textContent = "";
+    $("emptyNote").hidden = cands.length > 0;
+
+    for (const g of GROUPS) {
+      const items = cands
+        .filter((c) => c.group === g.key)
+        .sort((a, b) => a.name.localeCompare(b.name, "ja"));
+      if (items.length === 0) continue;
+
+      const h = document.createElement("h2");
+      h.textContent = `${g.label}（${items.length}名）`;
+      root.appendChild(h);
+
+      for (const c of items) {
+        if (c.id === editingId) {
+          root.appendChild(editCard(c));
+          continue;
+        }
+        const card = document.createElement("div");
+        card.className = "card";
+
+        const name = document.createElement("span");
+        name.className = "name";
+        name.textContent = c.name;
+        card.appendChild(name);
+
+        const marks = document.createElement("div");
+        marks.className = "marks";
+        const edit = document.createElement("button");
+        edit.type = "button";
+        edit.className = "edit";
+        edit.textContent = "編集";
+        edit.addEventListener("click", () => { editingId = c.id; render(); });
+        marks.appendChild(edit);
+
+        for (const [key, label, cls] of [["○", "○", "good"], ["×", "×", "bad"]]) {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.textContent = label;
+          b.className = cls;
+          b.setAttribute("aria-pressed", String(markOf(c.id) === key));
+          b.setAttribute("aria-label", `${c.name}を${label}にする`);
+          b.addEventListener("click", () => setMark(c.id, key));
+          marks.appendChild(b);
+        }
+        card.appendChild(marks);
+        root.appendChild(card);
+      }
+    }
+  }
+
+  function editCard(c) {
+    const card = document.createElement("div");
+    card.className = "card editing";
+
+    const nameInput = document.createElement("input");
+    nameInput.type = "text";
+    nameInput.value = c.name;
+    nameInput.maxLength = 60;
+    nameInput.setAttribute("aria-label", "名前");
+    // Enterでも保存する（保存ボタンを押さずに離れると変更は残らない）
+    nameInput.addEventListener("keydown", (ev) => {
+      if (ev.key === "Enter" && !ev.isComposing) saveEdit(c.id, nameInput.value.trim(), groupSelect.value);
+    });
+    card.appendChild(nameInput);
+
+    const groupSelect = document.createElement("select");
+    for (const g of GROUPS) {
+      const opt = document.createElement("option");
+      opt.value = g.key;
+      opt.textContent = g.label;
+      opt.selected = c.group === g.key;
+      groupSelect.appendChild(opt);
+    }
+    card.appendChild(groupSelect);
+
+    const actions = document.createElement("div");
+    actions.className = "marks";
+    const save = document.createElement("button");
+    save.type = "button";
+    save.className = "primary";
+    save.textContent = "保存";
+    save.addEventListener("click", () => saveEdit(c.id, nameInput.value.trim(), groupSelect.value));
+    const cancel = document.createElement("button");
+    cancel.type = "button";
+    cancel.textContent = "取消";
+    cancel.addEventListener("click", () => { editingId = null; render(); });
+    actions.append(save, cancel);
+    card.appendChild(actions);
+    return card;
+  }
+
+  async function saveEdit(id, name, group) {
+    if (!name) return;
+    try {
+      const saved = await call("updateCandidate", id, name, group);
+      cands = cands.map((c) => (c.id === id ? saved : c));
+      editingId = null;
+      setError("");
+      render();
+      setStatus(`「${saved.name}」を保存しました`);
+    } catch (e) {
+      setError(`保存できませんでした：${e.message}`);
+    }
+  }
+
+  async function setMark(candidateId, mark) {
+    const next = markOf(candidateId) === mark ? "" : mark;
+    try {
+      await call("setRating", candidateId, next);
+      ratings[candidateId] = next;
+      setError("");
+      render();
+    } catch (e) {
+      setError(`評価を保存できませんでした：${e.message}`);
+    }
+  }
+
+  async function addCandidate(ev) {
+    ev.preventDefault();
+    const name = $("newName").value.trim();
+    if (!name) return;
+    $("addBtn").disabled = true;
+    try {
+      const added = await call("addCandidate", name);
+      cands = cands.concat([added]);
+      $("newName").value = "";
+      setError("");
+      render();
+    } catch (e) {
+      setError(`追加できませんでした：${e.message}`);
+    } finally {
+      $("addBtn").disabled = false;
+    }
+  }
+
+  function showList() {
+    const ul = $("listItems");
+    ul.textContent = "";
+    const names = cands
+      .filter((c) => markOf(c.id) === "○")
+      .map((c) => c.name)
+      .sort((a, b) => a.localeCompare(b, "ja"));
+    if (names.length === 0) {
+      const li = document.createElement("li");
+      li.textContent = "○の候補はまだありません。";
+      ul.appendChild(li);
+    }
+    for (const n of names) {
+      const li = document.createElement("li");
+      li.textContent = n;
+      ul.appendChild(li);
+    }
+    $("listDialog").showModal();
+  }
+
+  $("addForm").addEventListener("submit", addCandidate);
+  $("listBtn").addEventListener("click", showList);
+  $("closeBtn").addEventListener("click", () => $("listDialog").close());
+  reload();
+})();
+</script>
+</body>
+</html>
