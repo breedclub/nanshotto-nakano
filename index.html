@@ -66,6 +66,14 @@
     padding: 8px 10px; margin-bottom: 8px;
   }
   .card.editing { flex-wrap: wrap; }
+  .card.member { display: block; }
+  .row-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .card .note { width: 100%; margin-top: 8px; min-height: 40px; font-size: 14px; }
+  .state { display: inline-block; min-width: 1.6em; margin-right: 4px; text-align: center; font-weight: 700; }
+  .state.good { color: var(--good); }
+  .state.bad { color: var(--bad); }
+  .state.hold { color: var(--muted); }
+  .out-head { margin-top: 32px; color: var(--bad); }
   .card.editing input, .card.editing select { flex: 1 1 140px; min-width: 0; }
   .name { font-weight: 600; word-break: break-word; min-width: 0; }
   .marks { display: flex; gap: 6px; flex-shrink: 0; flex-wrap: wrap; }
@@ -97,7 +105,7 @@
 <body>
 <main>
   <h1>プレオープン招待候補</h1>
-  <p class="lead">候補を追加して、○ か × で評価してください。評価と編集は、開いた全員に共有されます。</p>
+  <p class="lead">候補を追加して、○ か × で評価してください。未評価の人は△です。×をつけた人は一番下にまとまります。評価・編集・備考は、開いた全員に共有されます。</p>
 
   <form class="add" id="addForm">
     <input id="newName" type="text" placeholder="名前（活動名）" maxlength="60" required>
@@ -175,6 +183,7 @@
       const body = name === "addCandidate" ? { action: "add", name: args[0] }
         : name === "updateCandidate" ? { action: "update", id: args[0], name: args[1], group: args[2] }
         : name === "setRating" ? { action: "rate", candidateId: args[0], mark: args[1] }
+        : name === "setNote" ? { action: "note", id: args[0], note: args[1] }
         : null;
       if (!body) throw new Error("不明な操作です");
       res = await fetch(API, {
@@ -210,56 +219,108 @@
     }
   }
 
+  // ○×のついていない人は△として表示する
+  function memberCard(c) {
+    const mark = markOf(c.id);
+    const card = document.createElement("div");
+    card.className = "card member";
+
+    const top = document.createElement("div");
+    top.className = "row-top";
+
+    const name = document.createElement("span");
+    name.className = "name";
+    const state = document.createElement("span");
+    state.className = "state " + (mark === "○" ? "good" : mark === "×" ? "bad" : "hold");
+    state.textContent = mark || "△";
+    name.append(state, document.createTextNode(c.name));
+    top.appendChild(name);
+
+    const marks = document.createElement("div");
+    marks.className = "marks";
+    const edit = document.createElement("button");
+    edit.type = "button";
+    edit.className = "edit";
+    edit.textContent = "編集";
+    edit.addEventListener("click", () => { editingId = c.id; render(); });
+    marks.appendChild(edit);
+
+    for (const [key, label, cls] of [["○", "○", "good"], ["×", "×", "bad"]]) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = label;
+      b.className = cls;
+      b.setAttribute("aria-pressed", String(mark === key));
+      b.setAttribute("aria-label", `${c.name}を${label}にする`);
+      b.addEventListener("click", () => setMark(c.id, key));
+      marks.appendChild(b);
+    }
+    top.appendChild(marks);
+    card.appendChild(top);
+
+    // 備考は入力欄から離れたとき（またはEnter）に保存する
+    const note = document.createElement("input");
+    note.type = "text";
+    note.className = "note";
+    note.maxLength = 200;
+    note.placeholder = "備考";
+    note.value = c.note || "";
+    note.setAttribute("aria-label", `${c.name}の備考`);
+    note.addEventListener("change", () => saveNote(c.id, note));
+    note.addEventListener("keydown", (ev) => {
+      if (ev.key === "Enter" && !ev.isComposing) note.blur();
+    });
+    card.appendChild(note);
+    return card;
+  }
+
+  function appendCards(root, items) {
+    for (const c of items) {
+      root.appendChild(c.id === editingId ? editCard(c) : memberCard(c));
+    }
+  }
+
+  function byName(a, b) {
+    return a.name.localeCompare(b.name, "ja");
+  }
+
   function render() {
     const root = $("groups");
     root.textContent = "";
     $("emptyNote").hidden = cands.length > 0;
 
+    // ×をつけた人はグループから外し、最後にまとめる
     for (const g of GROUPS) {
       const items = cands
-        .filter((c) => c.group === g.key)
-        .sort((a, b) => a.name.localeCompare(b.name, "ja"));
+        .filter((c) => c.group === g.key && markOf(c.id) !== "×")
+        .sort(byName);
       if (items.length === 0) continue;
 
       const h = document.createElement("h2");
       h.textContent = `${g.label}（${items.length}名）`;
       root.appendChild(h);
+      appendCards(root, items);
+    }
 
-      for (const c of items) {
-        if (c.id === editingId) {
-          root.appendChild(editCard(c));
-          continue;
-        }
-        const card = document.createElement("div");
-        card.className = "card";
+    const out = cands.filter((c) => markOf(c.id) === "×").sort(byName);
+    if (out.length > 0) {
+      const h = document.createElement("h2");
+      h.className = "out-head";
+      h.textContent = `×をつけた人（${out.length}名）`;
+      root.appendChild(h);
+      appendCards(root, out);
+    }
+  }
 
-        const name = document.createElement("span");
-        name.className = "name";
-        name.textContent = c.name;
-        card.appendChild(name);
-
-        const marks = document.createElement("div");
-        marks.className = "marks";
-        const edit = document.createElement("button");
-        edit.type = "button";
-        edit.className = "edit";
-        edit.textContent = "編集";
-        edit.addEventListener("click", () => { editingId = c.id; render(); });
-        marks.appendChild(edit);
-
-        for (const [key, label, cls] of [["○", "○", "good"], ["×", "×", "bad"]]) {
-          const b = document.createElement("button");
-          b.type = "button";
-          b.textContent = label;
-          b.className = cls;
-          b.setAttribute("aria-pressed", String(markOf(c.id) === key));
-          b.setAttribute("aria-label", `${c.name}を${label}にする`);
-          b.addEventListener("click", () => setMark(c.id, key));
-          marks.appendChild(b);
-        }
-        card.appendChild(marks);
-        root.appendChild(card);
-      }
+  async function saveNote(id, input) {
+    const value = input.value.trim();
+    try {
+      const saved = await call("setNote", id, value);
+      cands = cands.map((c) => (c.id === id ? { ...c, note: saved.note } : c));
+      setError("");
+      setStatus("備考を保存しました");
+    } catch (e) {
+      setError(`備考を保存できませんでした：${e.message}`);
     }
   }
 
@@ -308,7 +369,7 @@
     if (!name) return;
     try {
       const saved = await call("updateCandidate", id, name, group);
-      cands = cands.map((c) => (c.id === id ? saved : c));
+      cands = cands.map((c) => (c.id === id ? { ...c, ...saved } : c));
       editingId = null;
       setError("");
       render();
