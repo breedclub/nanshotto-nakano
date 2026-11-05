@@ -74,6 +74,9 @@
   .state.bad { color: var(--bad); }
   .state.hold { color: var(--muted); }
   .out-head { margin-top: 32px; color: var(--bad); }
+  .marks button[aria-pressed="true"].hold { background: var(--muted); color: #fff; border-color: var(--muted); }
+  h2.head-good { color: var(--good); }
+  h2.head-hold { color: var(--muted); }
   .card.editing input, .card.editing select { flex: 1 1 140px; min-width: 0; }
   .name { font-weight: 600; word-break: break-word; min-width: 0; }
   .marks { display: flex; gap: 6px; flex-shrink: 0; flex-wrap: wrap; }
@@ -105,7 +108,7 @@
 <body>
 <main>
   <h1>プレオープン招待候補</h1>
-  <p class="lead">候補を追加して、○ か × で評価してください。未評価の人は△です。×をつけた人は一番下にまとまります。評価・編集・備考は、開いた全員に共有されます。</p>
+  <p class="lead">候補を追加して、○・△・× で評価してください。○、△、×の順に並びます（未評価は△）。評価・編集・備考は、開いた全員に共有されます。</p>
 
   <form class="add" id="addForm">
     <input id="newName" type="text" placeholder="名前（活動名）" maxlength="60" required>
@@ -245,7 +248,7 @@
     edit.addEventListener("click", () => { editingId = c.id; render(); });
     marks.appendChild(edit);
 
-    for (const [key, label, cls] of [["○", "○", "good"], ["×", "×", "bad"]]) {
+    for (const [key, label, cls] of [["○", "○", "good"], ["", "△", "hold"], ["×", "×", "bad"]]) {
       const b = document.createElement("button");
       b.type = "button";
       b.textContent = label;
@@ -284,31 +287,27 @@
     return a.name.localeCompare(b.name, "ja");
   }
 
+  // カテゴリは分けず、○ → △（未評価）→ × の順に並べる
+  const ORDER = [
+    { mark: "○", label: "○", cls: "head-good" },
+    { mark: "", label: "△", cls: "head-hold" },
+    { mark: "×", label: "×", cls: "out-head" },
+  ];
+
   function render() {
     const root = $("groups");
     root.textContent = "";
     $("emptyNote").hidden = cands.length > 0;
 
-    // ×をつけた人はグループから外し、最後にまとめる
-    for (const g of GROUPS) {
-      const items = cands
-        .filter((c) => c.group === g.key && markOf(c.id) !== "×")
-        .sort(byName);
+    for (const o of ORDER) {
+      const items = cands.filter((c) => markOf(c.id) === o.mark).sort(byName);
       if (items.length === 0) continue;
 
       const h = document.createElement("h2");
-      h.textContent = `${g.label}（${items.length}名）`;
+      h.className = o.cls;
+      h.textContent = `${o.label}（${items.length}名）`;
       root.appendChild(h);
       appendCards(root, items);
-    }
-
-    const out = cands.filter((c) => markOf(c.id) === "×").sort(byName);
-    if (out.length > 0) {
-      const h = document.createElement("h2");
-      h.className = "out-head";
-      h.textContent = `×をつけた人（${out.length}名）`;
-      root.appendChild(h);
-      appendCards(root, out);
     }
   }
 
@@ -335,19 +334,10 @@
     nameInput.setAttribute("aria-label", "名前");
     // Enterでも保存する（保存ボタンを押さずに離れると変更は残らない）
     nameInput.addEventListener("keydown", (ev) => {
-      if (ev.key === "Enter" && !ev.isComposing) saveEdit(c.id, nameInput.value.trim(), groupSelect.value);
+      if (ev.key === "Enter" && !ev.isComposing) saveEdit(c.id, nameInput.value.trim(), c.group);
     });
     card.appendChild(nameInput);
 
-    const groupSelect = document.createElement("select");
-    for (const g of GROUPS) {
-      const opt = document.createElement("option");
-      opt.value = g.key;
-      opt.textContent = g.label;
-      opt.selected = c.group === g.key;
-      groupSelect.appendChild(opt);
-    }
-    card.appendChild(groupSelect);
 
     const actions = document.createElement("div");
     actions.className = "marks";
@@ -355,7 +345,7 @@
     save.type = "button";
     save.className = "primary";
     save.textContent = "保存";
-    save.addEventListener("click", () => saveEdit(c.id, nameInput.value.trim(), groupSelect.value));
+    save.addEventListener("click", () => saveEdit(c.id, nameInput.value.trim(), c.group));
     const cancel = document.createElement("button");
     cancel.type = "button";
     cancel.textContent = "取消";
@@ -380,7 +370,8 @@
   }
 
   async function setMark(candidateId, mark) {
-    const next = markOf(candidateId) === mark ? "" : mark;
+    if (markOf(candidateId) === mark) return;
+    const next = mark;
     try {
       await call("setRating", candidateId, next);
       ratings[candidateId] = next;
