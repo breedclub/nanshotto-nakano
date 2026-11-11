@@ -201,7 +201,7 @@
     </div>
     <p class="hint" id="inviteHint">相手と送る人を選ぶと、本文の〇〇が置き換わります。本文はここで直してからコピーできます。</p>
     <div class="banner" id="bannerBox" hidden>
-      <img id="bannerImg" alt="VIPレセプションの案内バナー">
+      <img id="bannerImg" alt="プレオープンの案内バナー">
       <div class="actions">
         <button type="button" id="shareImgBtn">画像を保存・共有</button>
       </div>
@@ -401,7 +401,7 @@
 
 突然のご連絡失礼します。NOEZ FOXXの{from}です。
 
-Foyがプロデュースする居酒屋「博多中洲屋台村 なんしょっと？ 中野北口店」のオープンに先立ち、著名人・インフルエンサーの方限定のVIPレセプションを開きます。ぜひ{to}さんをご招待したく、ご連絡しました。
+Foyがプロデュースする居酒屋「博多中洲屋台村 なんしょっと？ 中野北口店」のオープンに先立ち、著名人・インフルエンサーの方限定のプレオープンを開きます。ぜひ{to}さんをご招待したく、ご連絡しました。
 
 日時：11月30日（月）19:00〜22:00
 場所：中野（東京都中野区中野5-56-14 岡田ビル2F）
@@ -477,7 +477,7 @@ https://breedclub.github.io/nanshotto-nakano/reception/
   $("shareImgBtn").addEventListener("click", async () => {
     try {
       const blob = await (await fetch(BANNER)).blob();
-      const file = new File([blob], "なんしょっと_VIPレセプション.jpg", { type: blob.type || "image/jpeg" });
+      const file = new File([blob], "なんしょっと_プレオープン.jpg", { type: blob.type || "image/jpeg" });
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({ files: [file] });
         return;
