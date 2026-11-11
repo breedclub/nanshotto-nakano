@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>プレオープン声がけ管理</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --fg: #1a1a1a;
+    --muted: #6b7077;
+    --line: #d9dde3;
+    --head: #f3f5f8;
+    --accent: #1f5fbf;
+    --todo: #8a5a00;
+    --todo-bg: #fff4dc;
+    --wait: #1f5fbf;
+    --wait-bg: #e8f0fc;
+    --yes: #1b7a3d;
+    --yes-bg: #e6f4ea;
+    --no: #b3261e;
+    --no-bg: #fbe9e7;
+    --card: #ffffff;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #151618;
+      --fg: #e9eaec;
+      --muted: #9aa0a6;
+      --line: #3a3d41;
+      --head: #22252a;
+      --accent: #7aa7ff;
+      --todo: #f0c060;
+      --todo-bg: #2c2612;
+      --wait: #7aa7ff;
+      --wait-bg: #18233a;
+      --yes: #6fd08c;
+      --yes-bg: #14281b;
+      --no: #ff8a80;
+      --no-bg: #331a18;
+      --card: #1c1e21;
+      color-scheme: dark;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-top: 16px;
+    padding-bottom: 40px;
+  }
+  main { max-width: 720px; margin: 0 auto; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .lead { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
+  .status { font-size: 13px; color: var(--muted); min-height: 1.4em; }
+  .error { color: var(--no); font-size: 13px; }
+  input, select, button { font: inherit; min-height: 44px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--fg); padding: 8px 12px; }
+  button { cursor: pointer; }
+  button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-bottom: 14px; }
+  .tile { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: var(--card); text-align: left; min-height: 0; cursor: pointer; }
+  .tile .num { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; display: block; }
+  .tile .lbl { font-size: 12px; color: var(--muted); }
+  .tile[aria-pressed="true"] { outline: 2px solid var(--accent); outline-offset: -1px; }
+
+  .tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+  .tools select { flex: 1 1 180px; min-width: 0; }
+  .tools button { flex: 0 0 auto; }
+
+  .row { border: 1px solid var(--line); border-radius: 8px; background: var(--card); padding: 10px; margin-bottom: 8px; }
+  .row-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .name { font-weight: 700; word-break: break-word; min-width: 0; }
+  .pill { font-size: 12px; font-weight: 600; padding: 2px 10px; border-radius: 999px; white-space: nowrap; }
+  .pill.todo { color: var(--todo); background: var(--todo-bg); }
+  .pill.wait { color: var(--wait); background: var(--wait-bg); }
+  .pill.yes { color: var(--yes); background: var(--yes-bg); }
+  .pill.no { color: var(--no); background: var(--no-bg); }
+  .fields { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .fields input, .fields select { flex: 1 1 160px; min-width: 0; font-size: 14px; }
+  .fields .note { flex-basis: 100%; }
+  .empty { color: var(--muted); font-size: 14px; padding: 12px 0; }
+  .foot { margin-top: 20px; font-size: 13px; color: var(--muted); }
+  .foot a { color: var(--accent); }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <h1>プレオープン声がけ管理</h1>
+  <p class="lead">招待候補で○がついた人だけを表示しています。担当者と声がけの状況を入力してください。入力した内容は、開いた全員に共有されます。</p>
+
+  <div class="summary" id="summary"></div>
+
+  <div class="tools">
+    <label class="lbl" for="byFilter" hidden>担当者で絞り込む</label>
+    <select id="byFilter" aria-label="担当者で絞り込む"></select>
+    <button type="button" id="reloadBtn">最新にする</button>
+  </div>
+  <p class="status" id="status">読み込み中…</p>
+  <p class="error" id="error" hidden></p>
+
+  <datalist id="people"></datalist>
+  <div id="list"></div>
+
+  <p class="foot">○×の評価や候補の追加は、<a href="../">招待候補の画面</a>で行います。</p>
+</main>
+
+<script>
+(() => {
+  const API = "https://script.google.com/macros/s/AKfycbxLk3QHOygHaXucItleZTVCuahcIf8JOqXJ7HmAEaXprc1y3YolLEy4iiGyb8iYs3JU/exec";
+
+  // 声がけの状況。値は招待候補の画面と共通（空は「未声がけ」）
+  const STATUSES = [
+    { value: "", label: "未声がけ", cls: "todo" },
+    { value: "声がけ済み（返事待ち）", label: "声がけ済み（返事待ち）", cls: "wait" },
+    { value: "参加", label: "参加", cls: "yes" },
+    { value: "不参加", label: "不参加", cls: "no" },
+  ];
+  const NO_OWNER = "__none__";
+
+  let people = [];        // ○の候補 { id, name, note, contactBy, contactStatus }
+  let statusFilter = null; // null は全員
+  let byFilter = "";       // "" は全員、NO_OWNER は担当者未定
+
+  const $ = (id) => document.getElementById(id);
+  const setError = (msg) => { $("error").hidden = !msg; $("error").textContent = msg || ""; };
+  const setStatus = (msg) => { $("status").textContent = msg; };
+  const statusOf = (p) => STATUSES.find((s) => s.value === (p.contactStatus || "")) || STATUSES[0];
+
+  // GASのAPIを呼ぶ。Googleのログイン情報を送らないので、どのアカウントでログインしていても動く
+  async function api(body) {
+    const res = body
+      ? await fetch(API, {
+          method: "POST",
+          credentials: "omit",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(body),
+        })
+      : await fetch(`${API}?api=state`, { credentials: "omit" });
+    const out = await res.json();
+    if (!out.ok) throw new Error(out.error || "エラーが発生しました");
+    return out.data;
+  }
+
+  async function reload() {
+    setStatus("読み込み中…");
+    try {
+      const state = await api(null);
+      const good = new Set(state.ratings.filter((r) => r.mark === "○").map((r) => r.candidateId));
+      people = state.candidates.filter((c) => good.has(c.id));
+      setError("");
+      renderAll();
+      setStatus(`○の候補 ${people.length}名`);
+    } catch (e) {
+      setError(`読み込めませんでした：${e.message}`);
+      setStatus("");
+    }
+  }
+
+  function renderAll() {
+    renderSummary();
+    renderFilter();
+    renderList();
+  }
+
+  // 状況ごとの人数。押すとその状況だけに絞り込む（もう一度押すと解除）
+  function renderSummary() {
+    const box = $("summary");
+    box.textContent = "";
+    const tiles = [{ key: null, label: "全員", count: people.length }].concat(
+      STATUSES.map((s) => ({ key: s.value, label: s.label, count: people.filter((p) => statusOf(p).value === s.value).length }))
+    );
+    for (const t of tiles) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "tile";
+      b.setAttribute("aria-pressed", String(statusFilter === t.key));
+      const num = document.createElement("span");
+      num.className = "num";
+      num.textContent = t.count;
+      const lbl = document.createElement("span");
+      lbl.className = "lbl";
+      lbl.textContent = t.label;
+      b.append(num, lbl);
+      b.addEventListener("click", () => {
+        statusFilter = statusFilter === t.key || t.key === null ? null : t.key;
+        renderSummary();
+        renderList();
+      });
+      box.appendChild(b);
+    }
+  }
+
+  // 担当者の絞り込み。入力済みの担当者名から選択肢を作る
+  function renderFilter() {
+    const names = [...new Set(people.map((p) => (p.contactBy || "").trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, "ja"));
+    const sel = $("byFilter");
+    sel.textContent = "";
+    const options = [["", "担当者：全員"], [NO_OWNER, "担当者：未定"]].concat(names.map((n) => [n, `担当者：${n}`]));
+    for (const [value, label] of options) {
+      const opt = document.createElement("option");
+      opt.value = value;
+      opt.textContent = label;
+      sel.appendChild(opt);
+    }
+    if (byFilter && byFilter !== NO_OWNER && !names.includes(byFilter)) byFilter = "";
+    sel.value = byFilter;
+
+    const dl = $("people");
+    dl.textContent = "";
+    for (const n of names) {
+      const opt = document.createElement("option");
+      opt.value = n;
+      dl.appendChild(opt);
+    }
+  }
+
+  // 未声がけ → 返事待ち → 参加 → 不参加 の順、同じ状況の中は名前順
+  function visiblePeople() {
+    const order = (p) => STATUSES.indexOf(statusOf(p));
+    return people
+      .filter((p) => statusFilter === null || statusOf(p).value === statusFilter)
+      .filter((p) => {
+        const by = (p.contactBy || "").trim();
+        if (byFilter === NO_OWNER) return !by;
+        return !byFilter || by === byFilter;
+      })
+      .sort((a, b) => order(a) - order(b) || a.name.localeCompare(b.name, "ja"));
+  }
+
+  function renderList() {
+    const list = $("list");
+    list.textContent = "";
+    const items = visiblePeople();
+    if (items.length === 0) {
+      const p = document.createElement("p");
+      p.className = "empty";
+      p.textContent = people.length ? "条件に合う人はいません。" : "○がついた候補はまだいません。";
+      list.appendChild(p);
+      return;
+    }
+    for (const p of items) list.appendChild(row(p));
+  }
+
+  function row(p) {
+    const st = statusOf(p);
+    const box = document.createElement("div");
+    box.className = "row";
+
+    const head = document.createElement("div");
+    head.className = "row-head";
+    const name = document.createElement("span");
+    name.className = "name";
+    name.textContent = p.name;
+    const pill = document.createElement("span");
+    pill.className = `pill ${st.cls}`;
+    pill.textContent = st.label;
+    head.append(name, pill);
+    box.appendChild(head);
+
+    const fields = document.createElement("div");
+    fields.className = "fields";
+
+    const by = document.createElement("input");
+    by.type = "text";
+    by.maxLength = 30;
+    by.placeholder = "担当者（声がけする人）";
+    by.value = p.contactBy || "";
+    by.setAttribute("list", "people");
+    by.setAttribute("aria-label", `${p.name}の担当者`);
+
+    const status = document.createElement("select");
+    status.setAttribute("aria-label", `${p.name}への声がけの状況`);
+    for (const s of STATUSES) {
+      const opt = document.createElement("option");
+      opt.value = s.value;
+      opt.textContent = s.label;
+      opt.selected = st.value === s.value;
+      status.appendChild(opt);
+    }
+
+    const note = document.createElement("input");
+    note.type = "text";
+    note.className = "note";
+    note.maxLength = 200;
+    note.placeholder = "備考";
+    note.value = p.note || "";
+    note.setAttribute("aria-label", `${p.name}の備考`);
+
+    const saveContact = () => save(p.id, { action: "contact", id: p.id, contactBy: by.value.trim(), contactStatus: status.value });
+    by.addEventListener("change", saveContact);
+    status.addEventListener("change", saveContact);
+    note.addEventListener("change", () => save(p.id, { action: "note", id: p.id, note: note.value.trim() }));
+    for (const el of [by, note]) {
+      el.addEventListener("keydown", (ev) => {
+        if (ev.key === "Enter" && !ev.isComposing) el.blur();
+      });
+    }
+
+    fields.append(by, status, note);
+    box.appendChild(fields);
+    return box;
+  }
+
+  async function save(id, body) {
+    setStatus("保存中…");
+    try {
+      const saved = await api(body);
+      people = people.map((p) => (p.id === id ? { ...p, ...saved } : p));
+      setError("");
+      // 状況が変わると並び順・人数が変わるので描き直す
+      renderAll();
+      setStatus("保存しました");
+    } catch (e) {
+      setError(`保存できませんでした：${e.message}`);
+      setStatus("");
+    }
+  }
+
+  $("byFilter").addEventListener("change", (ev) => {
+    byFilter = ev.target.value;
+    renderList();
+  });
+  $("reloadBtn").addEventListener("click", reload);
+  reload();
+})();
+</script>
+</body>
+</html>
