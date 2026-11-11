@@ -68,6 +68,20 @@
 (() => {
   const API = "https://script.google.com/macros/s/AKfycbxLk3QHOygHaXucItleZTVCuahcIf8JOqXJ7HmAEaXprc1y3YolLEy4iiGyb8iYs3JU/exec?api=guests";
   const $ = (id) => document.getElementById(id);
+  // 社内の呼び名 → 正式な活動名（様は表示時に付ける）。ここに無い人は呼び名のまま表示する
+  const OFFICIAL = {
+    "銀太": "GINTA",
+    "ブチギレの坂本": "GGチャンネル サカモト",
+    "ブチギレ宇治原": "ブチギレ氏原",
+    "たけやき翔": "タケヤキ翔",
+    "カマタク": "カマたく",
+    "OOODA": "OooDa",
+    "たっくーTV": "たっくー",
+    "ハテニャン": "はてにゃん",
+    "じんたん": "スカイピース ☆イニ☆（じん）",
+    "妹尾": "妹尾ゆうか",
+  };
+  const display = (name) => `${OFFICIAL[name] || name}様`;
 
   // LINE内ブラウザ等でGoogleがJSONでなく中間ページを返すことがあるので、読み直して最大3回試す
   async function load() {
@@ -89,13 +103,13 @@
       if (!out.ok) throw new Error(out.error || "");
       // 確定 → 声かけ中、同じ中は名前順
       const rank = (g) => (g.status === "確定" ? 0 : 1);
-      const guests = out.data.slice().sort((a, b) => rank(a) - rank(b) || a.name.localeCompare(b.name, "ja"));
+      const guests = out.data.slice().sort((a, b) => rank(a) - rank(b) || (OFFICIAL[a.name] || a.name).localeCompare(OFFICIAL[b.name] || b.name, "ja"));
       const list = $("list");
       for (const g of guests) {
         const li = document.createElement("li");
         const name = document.createElement("span");
         name.className = "name";
-        name.textContent = `${g.name}さん`;
+        name.textContent = display(g.name);
         const tag = document.createElement("span");
         tag.className = `tag ${g.status === "確定" ? "yes" : "wait"}`;
         tag.textContent = g.status;
