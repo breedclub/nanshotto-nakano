@@ -4,112 +4,241 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0c0806">
 <title>なんしょっと？中野北口店 VIPレセプションのご案内</title>
+<meta name="description" content="2026年11月30日（月）19:00〜22:00。Foyプロデュース「博多中洲屋台村 なんしょっと？ 中野北口店」完全招待制のVIPレセプションのご案内です。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="VIP RECEPTION｜なんしょっと？中野北口店">
+<meta property="og:description" content="11.30（月）19:00〜22:00 完全招待制。Foy来場・飲食無料・交通費支給。">
+<meta property="og:url" content="https://breedclub.github.io/nanshotto-nakano/reception/">
+<meta property="og:image" content="https://breedclub.github.io/nanshotto-nakano/reception/img/og.jpg">
+<meta property="og:image:width" content="1210">
+<meta property="og:image:height" content="732">
+<meta name="twitter:card" content="summary_large_image">
 <style>
   :root {
-    --bg: #faf7f2;
-    --paper: #ffffff;
-    --fg: #1f1a17;
-    --muted: #6d625a;
-    --line: #e6ddd2;
-    --accent: #b3261e;
-    --accent-soft: #fbe9e7;
-    color-scheme: light;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --bg: #161311;
-      --paper: #1f1b18;
-      --fg: #f1ebe4;
-      --muted: #b3a79c;
-      --line: #3a332d;
-      --accent: #ff8a80;
-      --accent-soft: #3a1f1c;
-      color-scheme: dark;
-    }
+    --bg: #0c0806;
+    --bg2: #15100c;
+    --card: rgba(255, 240, 210, .04);
+    --ink: #f7f0e3;
+    --muted: #c8b89b;
+    --gold: #e2bb6c;
+    --gold-d: #b98d43;
+    --line: rgba(226, 187, 108, .35);
+    --foil: linear-gradient(100deg, #a8742c 0%, #f6dc98 22%, #c9963f 40%, #fff3c9 52%, #c48d3a 66%, #f3d58b 82%, #9c6a26 100%);
+    color-scheme: dark;
   }
   * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
   body {
     margin: 0;
     background: var(--bg);
-    color: var(--fg);
-    font-family: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+    color: var(--ink);
+    font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
     font-size: 16px;
     line-height: 1.8;
-    padding-left: max(16px, env(safe-area-inset-left, 0px));
-    padding-right: max(16px, env(safe-area-inset-right, 0px));
-    padding-block: 20px 40px;
   }
-  main { max-width: 640px; margin: 0 auto; }
-  .hero { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 22px 20px; text-align: center; }
-  .eyebrow { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.12em; color: var(--accent); background: var(--accent-soft); padding: 2px 12px; border-radius: 999px; }
-  h1 { font-size: 24px; line-height: 1.45; margin: 12px 0 6px; text-wrap: balance; }
-  .shop { font-size: 15px; color: var(--muted); margin: 0; }
-  .when { font-size: 20px; font-weight: 700; margin: 14px 0 0; font-variant-numeric: tabular-nums; }
-  section { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; margin-top: 14px; }
-  h2 { font-size: 17px; margin: 0 0 8px; }
-  p { margin: 6px 0; }
-  ul { margin: 0; padding-left: 1.2em; }
-  li { margin: 4px 0; }
-  .note { font-size: 13px; color: var(--muted); }
-  table { border-collapse: collapse; width: 100%; font-size: 15px; }
-  th, td { text-align: left; vertical-align: top; padding: 6px 4px; border-bottom: 1px solid var(--line); }
-  th { white-space: nowrap; width: 7.5em; color: var(--muted); font-weight: 600; font-variant-numeric: tabular-nums; }
-  tr:last-child th, tr:last-child td { border-bottom: 0; }
-  a { color: var(--accent); }
-  .reply { text-align: center; font-weight: 700; }
+  .serif { font-family: "Didot", "Bodoni 72", "Bodoni Moda", "Times New Roman", serif; }
+  .foil { background: var(--foil); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  a { color: var(--gold); }
+  .wrap { max-width: 640px; margin: 0 auto; padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); }
+
+  /* ===== ヒーロー ===== */
+  .hero { position: relative; overflow: hidden; isolation: isolate; }
+  .hero-bg { position: absolute; inset: 0; z-index: -3; background: url(img/nabe.jpg) center 60% / cover; filter: brightness(.3) saturate(1.1) blur(3px); transform: scale(1.06); }
+  .hero-tone { position: absolute; inset: 0; z-index: -2;
+    background:
+      radial-gradient(ellipse 34% 70% at 80% 55%, rgba(232,176,86,.45), rgba(232,176,86,0) 72%),
+      linear-gradient(90deg, rgba(12,8,6,.92) 0%, rgba(12,8,6,.55) 55%, rgba(12,8,6,.25) 100%),
+      linear-gradient(180deg, transparent 70%, var(--bg) 100%); }
+  .rays { position: absolute; left: 80%; top: 55%; width: 900px; height: 900px; z-index: -2; transform: translate(-50%, -50%);
+    background: repeating-conic-gradient(from 0deg, rgba(255,214,140,.07) 0deg 3deg, transparent 3deg 12deg);
+    -webkit-mask-image: radial-gradient(circle, #000 0%, transparent 40%); mask-image: radial-gradient(circle, #000 0%, transparent 40%);
+    animation: spin 120s linear infinite; }
+  @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+  .sparkle { position: absolute; inset: 0; z-index: -1; pointer-events: none;
+    background-image:
+      radial-gradient(1.5px 1.5px at 12% 22%, rgba(255,236,180,.9), transparent),
+      radial-gradient(1px 1px at 28% 64%, rgba(255,236,180,.8), transparent),
+      radial-gradient(2px 2px at 82% 18%, rgba(255,236,180,.7), transparent),
+      radial-gradient(1.5px 1.5px at 70% 48%, rgba(255,236,180,.8), transparent),
+      radial-gradient(1px 1px at 90% 70%, rgba(255,236,180,.9), transparent),
+      radial-gradient(2.5px 2.5px at 8% 54%, rgba(255,220,150,.5), transparent),
+      radial-gradient(1px 1px at 46% 12%, rgba(255,236,180,.9), transparent),
+      radial-gradient(1.5px 1.5px at 60% 80%, rgba(255,236,180,.7), transparent),
+      radial-gradient(3px 3px at 22% 36%, rgba(255,220,150,.35), transparent),
+      radial-gradient(3px 3px at 78% 34%, rgba(255,220,150,.35), transparent);
+    animation: twinkle 4s ease-in-out infinite alternate; }
+  @keyframes twinkle { from { opacity: .55; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .rays, .sparkle { animation: none; } }
+
+  .hero-frame { position: absolute; inset: 12px; border: 1.5px solid rgba(214,170,90,.8); pointer-events: none; z-index: 1; }
+  .hero-frame::after { content: ""; position: absolute; inset: 6px; border: 1px solid rgba(214,170,90,.35); }
+
+  .hero { height: 238px; }
+  .hero-head { position: relative; z-index: 2; padding: 30px 0 0 30px; }
+  .eyebrow { display: inline-flex; align-items: center; gap: 10px; font-size: 11px; letter-spacing: .42em; color: var(--muted); }
+  .eyebrow::after { content: ""; width: 34px; height: 1px; background: var(--gold); opacity: .8; }
+  .hero h1 { margin: 4px 0 0; font-size: 40px; line-height: .98; font-weight: 700; letter-spacing: .02em; filter: drop-shadow(0 3px 10px rgba(0,0,0,.85)); }
+  .hero h1 span { display: block; }
+  .pill { display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: 900; letter-spacing: .1em; color: #2a1a07;
+    background: linear-gradient(100deg, #b98431, #f4d790 40%, #fff0c2 52%, #d1a04c 70%, #a87530); box-shadow: 0 4px 14px rgba(0,0,0,.5); }
+  .pill small { font-size: 9px; letter-spacing: .14em; font-weight: 700; }
+  .foy { position: absolute; right: -4px; bottom: 0; height: 214px; width: auto; z-index: 1;
+    -webkit-mask-image: linear-gradient(180deg, #000 70%, transparent 100%); mask-image: linear-gradient(180deg, #000 70%, transparent 100%);
+    filter: drop-shadow(0 0 24px rgba(0,0,0,.7)); }
+  @media (min-width: 560px) { .hero { height: 300px; } .hero-head { padding: 44px 0 0 calc(50% - 280px); } .hero h1 { font-size: 64px; } .foy { height: 280px; right: calc(50% - 300px); } }
+
+  /* 店名と日時（INVITATION内） */
+  .headline { text-align: center; margin-top: 18px; }
+  .headline .store { font-size: 12px; font-weight: 700; letter-spacing: .14em; color: var(--muted); }
+  .headline .name { margin: 0; font-size: 36px; font-weight: 900; line-height: 1.15; }
+  .headline .name small { display: block; font-size: 18px; margin-top: 2px; }
+  .date { display: inline-flex; align-items: baseline; gap: 10px; margin-top: 12px; padding: 7px 14px; white-space: nowrap; border-top: 1px solid var(--gold); border-bottom: 1px solid var(--gold); }
+  .date .d { font-size: 36px; font-weight: 700; line-height: 1; }
+  .date .w { font-size: 13px; font-weight: 800; color: var(--gold); letter-spacing: .14em; }
+  .date .t { font-size: 21px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .perks3 { margin-top: 12px; font-size: 14px; font-weight: 700; letter-spacing: .05em; }
+  .perks3 i { font-style: normal; color: var(--gold); margin: 0 8px; font-size: 11px; }
+
+  /* ===== 本文 ===== */
+  section { padding: 44px 0 8px; }
+  section.first { padding-top: 22px; }
+  .sec-title { text-align: center; margin: 0 0 22px; }
+  .sec-title .en { display: block; font-size: 30px; line-height: 1.1; font-weight: 700; letter-spacing: .08em; }
+  .sec-title .ja { display: inline-flex; align-items: center; gap: 10px; margin-top: 6px; font-size: 13px; color: var(--muted); letter-spacing: .2em; font-weight: 700; }
+  .sec-title .ja::before, .sec-title .ja::after { content: "◆"; font-size: 8px; color: var(--gold); }
+
+  .lead { text-align: center; font-size: 15px; color: var(--ink); margin: 0 0 4px; }
+
+  .card { position: relative; background: var(--card); border: 1px solid var(--line); border-radius: 4px; padding: 18px 18px; }
+  .card::before { content: ""; position: absolute; inset: 4px; border: 1px solid rgba(226,187,108,.14); border-radius: 2px; pointer-events: none; }
+
+  /* 特典 */
+  .perks { display: grid; gap: 10px; }
+  .perk { display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: start; }
+  .perk .no { font-size: 28px; line-height: 1; font-weight: 700; text-align: center; padding-top: 2px; }
+  .perk b { display: block; font-size: 16px; line-height: 1.5; }
+  .perk span { display: block; font-size: 13px; color: var(--muted); line-height: 1.6; margin-top: 2px; }
+  .perk.main { border-color: rgba(226,187,108,.7); background: linear-gradient(135deg, rgba(226,187,108,.14), rgba(226,187,108,.03)); }
+
+  .photos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+  .photos img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 4px; border: 1px solid var(--line); display: block; filter: saturate(1.05); }
+
+  /* 開催概要 */
+  dl.info { margin: 0; display: grid; grid-template-columns: 6.4em 1fr; }
+  dl.info dt, dl.info dd { margin: 0; padding: 11px 0; border-bottom: 1px solid rgba(226,187,108,.18); }
+  dl.info dt { color: var(--gold); font-size: 13px; font-weight: 700; letter-spacing: .08em; padding-top: 13px; }
+  dl.info dd { font-size: 15px; }
+  dl.info > :nth-last-child(-n+2) { border-bottom: 0; }
+  .map-btn { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; padding: 6px 14px; min-height: 40px; border: 1px solid var(--gold); border-radius: 999px; font-size: 14px; font-weight: 700; text-decoration: none; color: var(--gold); }
+  .map-btn svg { width: 16px; height: 16px; }
+
+  /* タイムテーブル */
+  ol.tl { list-style: none; margin: 0; padding: 0; position: relative; }
+  ol.tl::before { content: ""; position: absolute; left: 5.6em; top: 10px; bottom: 10px; width: 1px; background: linear-gradient(var(--gold), rgba(226,187,108,.2)); }
+  ol.tl li { display: grid; grid-template-columns: 5.6em 1fr; gap: 0 18px; padding: 8px 0; position: relative; }
+  ol.tl li::after { content: ""; position: absolute; left: calc(5.6em - 4px); top: 17px; width: 9px; height: 9px; border-radius: 50%; background: var(--bg); border: 2px solid var(--gold); }
+  ol.tl li.hl::after { background: var(--gold); box-shadow: 0 0 10px rgba(226,187,108,.8); }
+  ol.tl time { font-size: 16px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--gold); text-align: right; padding-right: 14px; white-space: nowrap; }
+  ol.tl b { display: block; font-size: 16px; }
+  ol.tl span { display: block; font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  /* 返信 */
+  .reply { text-align: center; padding: 26px 18px; margin-top: 8px; }
+  .reply p { margin: 0; font-size: 16px; font-weight: 700; line-height: 1.8; }
+  .reply .sm { margin-top: 8px; font-size: 13px; font-weight: 400; color: var(--muted); }
+
+  footer { text-align: center; padding: 40px 0 max(40px, env(safe-area-inset-bottom, 0px)); color: var(--muted); font-size: 12px; letter-spacing: .06em; }
+  footer .serif { display: block; font-size: 20px; letter-spacing: .2em; margin-bottom: 6px; }
 </style>
 </head>
 <body>
-<main>
-  <div class="hero">
-    <span class="eyebrow">完全招待制</span>
-    <h1>中野 NEW OPEN<br>VIPレセプションのご案内</h1>
-    <p class="shop">博多中洲屋台村 なんしょっと？ 中野北口店<br>プロデュース：Foy（NOEZ FOXX）</p>
-    <p class="when">2026年11月30日（月）19:00〜22:00</p>
+
+<header class="hero">
+  <div class="hero-bg" aria-hidden="true"></div>
+  <div class="hero-tone" aria-hidden="true"></div>
+  <div class="rays" aria-hidden="true"></div>
+  <div class="sparkle" aria-hidden="true"></div>
+  <div class="hero-frame" aria-hidden="true"></div>
+
+  <div class="hero-head">
+    <div class="eyebrow serif">EXCLUSIVE</div>
+    <h1 class="serif foil"><span>VIP</span><span>RECEPTION</span></h1>
+    <div class="pill">完全招待制<small class="serif">INVITATION ONLY</small></div>
   </div>
+  <img class="foy" src="img/foy.png" alt="プロデューサーのFoy" width="900" height="1255">
+</header>
 
-  <section>
-    <h2>開催概要</h2>
-    <table>
-      <tr><th>店名</th><td>博多中洲屋台村 なんしょっと？ 中野北口店</td></tr>
-      <tr><th>日時</th><td>2026年11月30日（月）19:00〜22:00</td></tr>
-      <tr><th>場所</th><td>東京都中野区中野5-56-14 岡田ビル2F<br><a href="https://www.google.com/maps/search/?api=1&amp;query=%E6%9D%B1%E4%BA%AC%E9%83%BD%E4%B8%AD%E9%87%8E%E5%8C%BA%E4%B8%AD%E9%87%8E5-56-14+%E5%B2%A1%E7%94%B0%E3%83%93%E3%83%AB">Googleマップで開く</a></td></tr>
-      <tr><th>参加費</th><td>無料</td></tr>
-      <tr><th>参加形式</th><td>完全招待制</td></tr>
-    </table>
-    <p class="note">グランドオープンに先立ち、著名人・グルメインフルエンサーの方を限定でお招きするレセプションです。当日はプロデューサーのFoyも参加します。</p>
+<main class="wrap">
+  <section class="first">
+    <h2 class="sec-title"><span class="en serif foil">INVITATION</span><span class="ja">ご招待</span></h2>
+    <div class="headline">
+      <div class="store">Foy PRODUCE ｜ 博多中洲屋台村</div>
+      <p class="name">なんしょっと？<small>中野北口店</small></p>
+      <div class="date"><span class="d serif foil">11.30</span><span class="w">MON</span><span class="t">19:00–22:00</span></div>
+      <div class="perks3">Foy 来場<i>◆</i>飲食無料<i>◆</i>交通費支給</div>
+    </div>
+    <p class="lead" style="margin-top:22px">グランドオープンに先立ち、<br>著名人・グルメインフルエンサーの方を<br>限定でお招きするレセプションです。<br>当日はプロデューサーのFoyも参加します。</p>
   </section>
 
   <section>
-    <h2>VIPゲスト特典</h2>
-    <ul>
-      <li>Foyへの直接インタビュー（本人の許可制）</li>
-      <li>Foyとの動画出演・コラボ撮影（本人の許可制）</li>
-      <li>著名インフルエンサーが多数参加予定</li>
-      <li>店内のSNS撮影は自由（他のゲストの撮影・公開は、その方の許可制）</li>
-      <li>お食事・ドリンクは無料</li>
-      <li>交通費を支給（当日、領収書と引き換えにお支払いします。領収書がない場合は、区間と金額をお申し出ください）</li>
-      <li>グランドオープン前の特別先行体験</li>
-    </ul>
+    <h2 class="sec-title"><span class="en serif foil">VIP PRIVILEGES</span><span class="ja">VIPゲスト特典</span></h2>
+    <div class="perks">
+      <div class="card perk main"><span class="no serif foil">01</span><div><b>店内のSNS撮影は自由</b><span>当日はみなさまのコンテンツの撮影にご利用いただけます</span></div></div>
+      <div class="card perk main"><span class="no serif foil">02</span><div><b>お食事・ドリンクの無料提供</b></div></div>
+      <div class="card perk main"><span class="no serif foil">03</span><div><b>交通費を支給</b><span>当日、領収書と引き換えにお支払いします。領収書がない場合は、区間と金額をお申し出ください</span></div></div>
+      <div class="card perk main"><span class="no serif foil">04</span><div><b>グランドオープン前の特別先行体験</b></div></div>
+    </div>
+    <div class="photos" aria-label="お料理のイメージ">
+      <img src="img/nabe.jpg" alt="もつ鍋" loading="lazy">
+      <img src="img/kushi.jpg" alt="串焼き" loading="lazy">
+    </div>
   </section>
 
   <section>
-    <h2>タイムテーブル</h2>
-    <table>
-      <tr><th>19:00〜</th><td>受付・お席へのご案内（交通費の精算、QRオーダーのご説明、ドリンクのご提供）</td></tr>
-      <tr><th>19:20〜</th><td>代表挨拶</td></tr>
-      <tr><th>19:25〜</th><td>Foy挨拶・乾杯</td></tr>
-      <tr><th>乾杯後</th><td>お食事・ご歓談・撮影交流</td></tr>
-      <tr><th>21:30</th><td>ラストオーダー</td></tr>
-      <tr><th>21:55</th><td>全体記念撮影</td></tr>
-      <tr><th>22:00</th><td>閉会・お見送り</td></tr>
-    </table>
+    <h2 class="sec-title"><span class="en serif foil">INFORMATION</span><span class="ja">開催概要</span></h2>
+    <div class="card">
+      <dl class="info">
+        <dt>店名</dt><dd>博多中洲屋台村 なんしょっと？ 中野北口店</dd>
+        <dt>日時</dt><dd>2026年11月30日（月）<br>19:00〜22:00</dd>
+        <dt>場所</dt><dd>東京都中野区中野5-56-14 岡田ビル2F<br>
+          <a class="map-btn" href="https://www.google.com/maps/search/?api=1&amp;query=%E6%9D%B1%E4%BA%AC%E9%83%BD%E4%B8%AD%E9%87%8E%E5%8C%BA%E4%B8%AD%E9%87%8E5-56-14+%E5%B2%A1%E7%94%B0%E3%83%93%E3%83%AB">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Googleマップで開く</a></dd>
+        <dt>参加費</dt><dd>無料</dd>
+        <dt>参加形式</dt><dd>完全招待制</dd>
+        <dt>プロデュース</dt><dd>Foy（NOEZ FOXX）</dd>
+      </dl>
+    </div>
   </section>
 
   <section>
-    <p class="reply">ご参加の可否は、ご案内をお送りした担当者へご返信ください。</p>
+    <h2 class="sec-title"><span class="en serif foil">TIME TABLE</span><span class="ja">タイムテーブル</span></h2>
+    <div class="card">
+      <ol class="tl">
+        <li><time>19:00〜</time><div><b>受付・お席へのご案内</b><span>交通費の精算、QRオーダーのご説明、ドリンクのご提供</span></div></li>
+        <li><time>19:20〜</time><div><b>代表挨拶</b></div></li>
+        <li class="hl"><time>19:25〜</time><div><b>Foy挨拶・乾杯</b></div></li>
+        <li><time>乾杯後</time><div><b>お食事・ご歓談・撮影交流</b></div></li>
+        <li><time>21:30</time><div><b>ラストオーダー</b></div></li>
+        <li class="hl"><time>21:55</time><div><b>全体記念撮影</b></div></li>
+        <li><time>22:00</time><div><b>閉会・お見送り</b></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <section>
+    <div class="card reply">
+      <p>ご参加の可否は、<br>ご案内をお送りした担当者へ<br>ご返信ください。</p>
+      <p class="sm">皆さまのお越しを、心よりお待ちしております。</p>
+    </div>
   </section>
 </main>
+
+<footer class="wrap">
+  <span class="serif foil">VIP RECEPTION</span>
+  博多中洲屋台村 なんしょっと？ 中野北口店<br>PRODUCED BY Foy
+</footer>
+
 </body>
 </html>
