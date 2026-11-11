@@ -10,7 +10,7 @@
     --bg: #ffffff;
     --fg: #1a1a1a;
     --muted: #6b7077;
-    --line: #d9dde3;
+    --line: #e3e6ea;
     --head: #f3f5f8;
     --accent: #1f5fbf;
     --todo: #8a5a00;
@@ -29,7 +29,7 @@
       --bg: #151618;
       --fg: #e9eaec;
       --muted: #9aa0a6;
-      --line: #3a3d41;
+      --line: #33363a;
       --head: #22252a;
       --accent: #7aa7ff;
       --todo: #f0c060;
@@ -45,96 +45,209 @@
     }
   }
   * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
   body {
     margin: 0;
     background: var(--bg);
     color: var(--fg);
     font-family: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
-    font-size: 15px;
-    line-height: 1.6;
-    padding-left: max(16px, env(safe-area-inset-left, 0px));
-    padding-right: max(16px, env(safe-area-inset-right, 0px));
-    padding-top: 16px;
-    padding-bottom: 40px;
+    font-size: 14px;
+    line-height: 1.4;
+    padding-left: max(12px, env(safe-area-inset-left, 0px));
+    padding-right: max(12px, env(safe-area-inset-right, 0px));
+    padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
   }
-  main { max-width: 720px; margin: 0 auto; }
-  h1 { font-size: 20px; margin: 0 0 4px; }
-  .lead { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
-  .status { font-size: 13px; color: var(--muted); min-height: 1.4em; }
-  .error { color: var(--no); font-size: 13px; }
-  input, select, button { font: inherit; min-height: 44px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--fg); padding: 8px 12px; }
+  main { max-width: 640px; margin: 0 auto; }
+
+  /* 上部は固定。スクロールしても絞り込みと人数が見える */
+  .top {
+    position: sticky; top: 0; z-index: 2;
+    background: var(--bg);
+    padding-top: max(8px, env(safe-area-inset-top, 0px));
+    border-bottom: 1px solid var(--line);
+  }
+  .bar { display: flex; align-items: center; gap: 8px; min-height: 36px; }
+  h1 { font-size: 16px; margin: 0; flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .msg { font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .msg.err { color: var(--no); white-space: normal; }
+
+  /* 入力欄は16px（iPhoneで入力時に画面が拡大されないように） */
+  input, select, button { font: inherit; font-size: 16px; color: var(--fg); background: var(--card); border: 1px solid var(--line); border-radius: 6px; }
   button { cursor: pointer; }
-  button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
-  .summary { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
-  .tile { min-height: 32px; padding: 2px 12px; border-radius: 999px; font-size: 13px; background: var(--card); }
-  .tile .num { font-weight: 700; font-variant-numeric: tabular-nums; margin-left: 4px; }
-  .tile[aria-pressed="true"] { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .icon-btn { width: 36px; height: 36px; padding: 0; display: inline-grid; place-items: center; flex: 0 0 auto; }
+  .icon-btn svg { width: 18px; height: 18px; }
 
-  .tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 6px; }
-  .tools select { flex: 0 1 220px; min-width: 0; min-height: 36px; padding: 4px 10px; font-size: 14px; }
-  .tools button { flex: 0 0 auto; min-height: 36px; padding: 4px 12px; font-size: 14px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 3px; padding: 3px 0; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip { flex: 0 0 auto; height: 30px; padding: 0 6px; border-radius: 999px; font-size: 12.5px; white-space: nowrap; }
+  .chip .num { font-weight: 700; font-variant-numeric: tabular-nums; margin-left: 2px; }
+  .chip.todo { color: var(--todo); }
+  .chip.wait { color: var(--wait); }
+  .chip.yes { color: var(--yes); }
+  .chip.no { color: var(--no); }
+  .chip[aria-pressed="true"] { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .chips-label { flex: 0 0 auto; align-self: center; font-size: 11px; color: var(--muted); width: 2.2em; }
 
-  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
-  table { border-collapse: collapse; width: 100%; min-width: 620px; font-size: 14px; }
-  th, td { border-bottom: 1px solid var(--line); padding: 4px 6px; text-align: left; vertical-align: middle; }
-  thead th { background: var(--head); font-size: 12px; color: var(--muted); font-weight: 600; position: sticky; top: 0; }
-  tbody tr:last-child td { border-bottom: 0; }
-  td.name { font-weight: 700; white-space: nowrap; }
-  td input, td select { width: 100%; min-height: 34px; padding: 4px 8px; font-size: 14px; border-radius: 6px; }
-  td.c-status { width: 190px; }
-  td.c-by { width: 140px; }
-  td select.todo { color: var(--todo); background: var(--todo-bg); }
-  td select.wait { color: var(--wait); background: var(--wait-bg); }
-  td select.yes { color: var(--yes); background: var(--yes-bg); }
-  td select.no { color: var(--no); background: var(--no-bg); }
-  .empty { color: var(--muted); font-size: 14px; padding: 12px 0; }
-  .foot { margin-top: 20px; font-size: 13px; color: var(--muted); }
+  /* 担当者の色。状況（薄い色）と見分けやすいよう、担当者は塗りつぶしにする */
+  .o-takumi { --o: #7b3fb5; }
+  .o-tanaka { --o: #0f7f7a; }
+  .o-sanpei { --o: #c2397a; }
+  .o-ichikawa { --o: #2f5bd3; }
+  .o-foy { --o: #c75a00; }
+  .o-other { --o: #5f6670; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .o-takumi { --o: #9a63d6; }
+    :root:not([data-theme="light"]) .o-tanaka { --o: #17988f; }
+    :root:not([data-theme="light"]) .o-sanpei { --o: #d6508f; }
+    :root:not([data-theme="light"]) .o-ichikawa { --o: #4f78e6; }
+    :root:not([data-theme="light"]) .o-foy { --o: #d9711a; }
+    :root:not([data-theme="light"]) .o-other { --o: #7a828c; }
+  }
+  .chip.owner { color: var(--o, var(--fg)); border-color: var(--o, var(--line)); }
+  .chip.owner { border-width: 1.5px; }
+  .chip.owner.none { border-style: dashed; color: var(--muted); }
+  .chip.owner[aria-pressed="true"] { background: var(--o, var(--accent)); border-color: var(--o, var(--accent)); color: #fff; }
+
+  /* 1人1行：名前｜状況｜担当｜備考ボタン */
+  .grid { display: grid; grid-template-columns: minmax(0, 1fr) 6.4em 5em 36px; column-gap: 4px; align-items: center; }
+  .cols { font-size: 11px; color: var(--muted); padding: 2px 0 3px; }
+  .cols span:last-child { text-align: center; }
+  .row { border-bottom: 1px solid var(--line); padding: 3px 0; }
+  .row > * { min-width: 0; }
+  button.who { font: inherit; text-align: left; background: none; border-top: 0; border-right: 0; border-bottom: 0; border-radius: 0; color: inherit; cursor: pointer; }
+  .who { display: flex; flex-direction: column; justify-content: center; min-height: 36px; padding-left: 7px; border-left: 3px solid transparent; }
+  .row.todo .who { border-left-color: var(--todo); }
+  .row.wait .who { border-left-color: var(--wait); }
+  .row.yes .who { border-left-color: var(--yes); }
+  .row.no .who { border-left-color: var(--no); }
+  .who .name { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .who .note { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row select, .row input { width: 100%; height: 36px; padding: 0 4px; }
+  .row select { padding-right: 0; }
+  .row select.todo { color: var(--todo); background: var(--todo-bg); }
+  .row select.wait { color: var(--wait); background: var(--wait-bg); }
+  .row select.yes { color: var(--yes); background: var(--yes-bg); }
+  .row select.no { color: var(--no); background: var(--no-bg); }
+  .row select.by { font-weight: 700; }
+  .row select.by.set { background: var(--o); border-color: var(--o); color: #fff; }
+  .row select.by.unset { color: var(--muted); font-weight: 400; }
+  .row select.by option { color: var(--fg); background: var(--card); font-weight: 400; }
+  .row.has-owner .who .name { color: var(--o); }
+  .row .icon-btn[aria-expanded="true"], .row .icon-btn.has { color: var(--accent); border-color: var(--accent); }
+  .row .note-edit { grid-column: 1 / -1; margin-top: 4px; }
+  .empty { color: var(--muted); padding: 12px 0; }
+  .foot { margin-top: 14px; font-size: 12px; color: var(--muted); }
   .foot a { color: var(--accent); }
+  .text-btn { height: 36px; padding: 0 10px; font-size: 14px; font-weight: 700; color: var(--accent); border-color: var(--accent); flex: 0 0 auto; }
+
+  /* 招待文のパネル */
+  dialog#invite { width: min(100vw - 16px, 560px); max-height: calc(100dvh - 16px); padding: 0; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); color: var(--fg); }
+  dialog#invite::backdrop { background: rgba(0, 0, 0, .45); }
+  .sheet { display: flex; flex-direction: column; gap: 8px; padding: 12px; }
+  .sheet-head { display: flex; align-items: center; gap: 8px; }
+  .sheet-head h2 { font-size: 16px; margin: 0; flex: 1 1 auto; }
+  .pick { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .pick label { display: flex; flex-direction: column; font-size: 11px; color: var(--muted); gap: 2px; }
+  .pick select { height: 38px; padding: 0 6px; width: 100%; }
+  #inviteText { font: inherit; width: 100%; min-height: 15em; padding: 8px; font-size: 14px; line-height: 1.55; resize: vertical; background: var(--head); border: 1px solid var(--line); border-radius: 8px; color: var(--fg); white-space: pre-wrap; }
+  .actions { display: flex; flex-wrap: wrap; gap: 6px; }
+  .actions button { height: 40px; padding: 0 12px; font-size: 15px; }
+  .primary { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 700; }
+  .hint { font-size: 12px; color: var(--muted); margin: 0; }
+  .banner { display: flex; flex-direction: column; gap: 6px; border-top: 1px solid var(--line); padding-top: 8px; }
+  .banner img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--line); }
   [hidden] { display: none !important; }
 </style>
 </head>
 <body>
 <main>
-  <h1>プレオープン声がけ管理</h1>
-  <p class="lead">招待候補で○がついた人だけを表示しています。担当者と声がけの状況を入力してください。入力した内容は、開いた全員に共有されます。</p>
-
-  <div class="summary" id="summary"></div>
-
-  <div class="tools">
-    <select id="byFilter" aria-label="担当者で絞り込む"></select>
-    <button type="button" id="reloadBtn">最新にする</button>
+  <div class="top">
+    <div class="bar">
+      <h1>声がけ管理</h1>
+      <span class="msg" id="msg" role="status">読み込み中…</span>
+      <button type="button" class="text-btn" id="inviteBtn">招待文</button>
+      <button type="button" class="icon-btn" id="reloadBtn" aria-label="最新にする" title="最新にする">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+      </button>
+    </div>
+    <div class="chips" id="chips" role="group" aria-label="状況で絞り込む"></div>
+    <div class="chips" id="ownerChips" role="group" aria-label="担当者で絞り込む"></div>
+    <div class="grid cols" aria-hidden="true"><span>名前</span><span>状況</span><span>担当</span><span>備考</span></div>
   </div>
-  <p class="status" id="status">読み込み中…</p>
-  <p class="error" id="error" hidden></p>
 
-  <datalist id="people"></datalist>
   <div id="list"></div>
 
-  <p class="foot">○×の評価や候補の追加は、<a href="../">招待候補の画面</a>で行います。</p>
+  <p class="foot">上のボタンで状況・担当者を絞り込めます（もう一度押すと解除）。名前を押すと、その人あての招待文を開きます。入力は自動で保存され、開いた全員に共有されます。○×の評価や候補の追加は<a href="../">招待候補の画面</a>で行います。</p>
 </main>
+
+<dialog id="invite" aria-labelledby="inviteTitle">
+  <div class="sheet">
+    <div class="sheet-head">
+      <h2 id="inviteTitle">招待文（コピーして送る）</h2>
+      <button type="button" class="icon-btn" id="inviteClose" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="pick">
+      <label>送る相手<select id="inviteTo"></select></label>
+      <label>送る人<select id="inviteFrom"></select></label>
+    </div>
+    <textarea id="inviteText" aria-label="招待文"></textarea>
+    <div class="actions">
+      <button type="button" class="primary" id="copyBtn">本文をコピー</button>
+      <button type="button" id="markBtn" hidden>返事待ちにする</button>
+    </div>
+    <p class="hint" id="inviteHint">相手と送る人を選ぶと、本文の〇〇が置き換わります。本文はここで直してからコピーできます。</p>
+    <div class="banner" id="bannerBox" hidden>
+      <img id="bannerImg" alt="VIPレセプションの案内バナー">
+      <div class="actions">
+        <button type="button" id="shareImgBtn">画像を保存・共有</button>
+      </div>
+      <p class="hint">保存できない時は、画像を長押しして「写真に保存」を選んでください。</p>
+    </div>
+  </div>
+</dialog>
 
 <script>
 (() => {
   const API = "https://script.google.com/macros/s/AKfycbxLk3QHOygHaXucItleZTVCuahcIf8JOqXJ7HmAEaXprc1y3YolLEy4iiGyb8iYs3JU/exec";
 
-  // 声がけの状況。値は招待候補の画面と共通（空は「未声がけ」）
+  // 声がけの状況。value は招待候補の画面・スプレッドシートと共通（空は「未声がけ」）。short は画面の表示名
   const STATUSES = [
-    { value: "", label: "未声がけ", cls: "todo" },
-    { value: "声がけ済み（返事待ち）", label: "声がけ済み（返事待ち）", cls: "wait" },
-    { value: "参加", label: "参加", cls: "yes" },
-    { value: "不参加", label: "不参加", cls: "no" },
+    { value: "", label: "未声がけ", short: "未声がけ", cls: "todo" },
+    { value: "声がけ済み（返事待ち）", label: "声がけ済み（返事待ち）", short: "返事待ち", cls: "wait" },
+    { value: "参加", label: "参加", short: "参加", cls: "yes" },
+    { value: "不参加", label: "不参加", short: "不参加", cls: "no" },
   ];
   const NO_OWNER = "__none__";
+  // 担当者（この順で表示）。cls で色を決める
+  const OWNERS = [
+    { name: "宅見", cls: "o-takumi" },
+    { name: "田中", cls: "o-tanaka" },
+    { name: "三瓶", cls: "o-sanpei" },
+    { name: "市川", cls: "o-ichikawa" },
+    { name: "Foy", cls: "o-foy" },
+  ];
+  const ownerCls = (name) => (OWNERS.find((o) => o.name === name) || { cls: "o-other" }).cls;
+  const ownerOf = (p) => (p.contactBy || "").trim();
+  // 一覧にない名前が入っていた時も消さずに表示する
+  const ownerNames = () => {
+    const extra = [...new Set(people.map(ownerOf).filter((n) => n && !OWNERS.some((o) => o.name === n)))];
+    return OWNERS.map((o) => o.name).concat(extra.sort((a, b) => a.localeCompare(b, "ja")));
+  };
+  const PENCIL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
 
-  let people = [];        // ○の候補 { id, name, note, contactBy, contactStatus }
+  let people = [];         // ○の候補 { id, name, note, contactBy, contactStatus }
   let statusFilter = null; // null は全員
   let byFilter = "";       // "" は全員、NO_OWNER は担当者未定
+  const openNotes = new Set(); // 備考欄を開いている人の id
 
   const $ = (id) => document.getElementById(id);
-  const setError = (msg) => { $("error").hidden = !msg; $("error").textContent = msg || ""; };
-  const setStatus = (msg) => { $("status").textContent = msg; };
+  const say = (text, isErr) => { const m = $("msg"); m.textContent = text || ""; m.classList.toggle("err", !!isErr); };
   const statusOf = (p) => STATUSES.find((s) => s.value === (p.contactStatus || "")) || STATUSES[0];
+  const el = (tag, props = {}) => Object.assign(document.createElement(tag), props);
 
   // GASのAPIを呼ぶ。Googleのログイン情報を送らないので、どのアカウントでログインしていても動く
   async function api(body) {
@@ -152,72 +265,56 @@
   }
 
   async function reload() {
-    setStatus("読み込み中…");
+    say("読み込み中…");
     try {
       const state = await api(null);
       const good = new Set(state.ratings.filter((r) => r.mark === "○").map((r) => r.candidateId));
       people = state.candidates.filter((c) => good.has(c.id));
-      setError("");
       renderAll();
-      setStatus(`○の候補 ${people.length}名`);
+      say(`○ ${people.length}名`);
     } catch (e) {
-      setError(`読み込めませんでした：${e.message}`);
-      setStatus("");
+      say(`読み込めませんでした：${e.message}`, true);
     }
   }
 
   function renderAll() {
-    renderSummary();
-    renderFilter();
+    renderChips();
     renderList();
   }
 
-  // 状況ごとの人数。押すとその状況だけに絞り込む（もう一度押すと解除）
-  function renderSummary() {
-    const box = $("summary");
+  // 状況ごとの人数（押すと絞り込み、もう一度押すと解除）と担当者の絞り込み
+  function renderChips() {
+    const box = $("chips");
     box.textContent = "";
-    const tiles = [{ key: null, label: "全員", count: people.length }].concat(
-      STATUSES.map((s) => ({ key: s.value, label: s.label, count: people.filter((p) => statusOf(p).value === s.value).length }))
+    const tiles = [].concat(
+      STATUSES.map((s) => ({ key: s.value, label: s.short, cls: s.cls, count: people.filter((p) => statusOf(p).value === s.value).length }))
     );
     for (const t of tiles) {
-      const b = document.createElement("button");
-      b.type = "button";
-      b.className = "tile";
+      const b = el("button", { type: "button", className: `chip ${t.cls}` });
       b.setAttribute("aria-pressed", String(statusFilter === t.key));
-      const num = document.createElement("span");
-      num.className = "num";
-      num.textContent = t.count;
-      b.append(document.createTextNode(t.label), num);
+      b.append(t.label, el("span", { className: "num", textContent: t.count }));
       b.addEventListener("click", () => {
-        statusFilter = statusFilter === t.key || t.key === null ? null : t.key;
-        renderSummary();
-        renderList();
+        statusFilter = statusFilter === t.key ? null : t.key;
+        renderAll();
       });
       box.appendChild(b);
     }
-  }
 
-  // 担当者の絞り込み。入力済みの担当者名から選択肢を作る
-  function renderFilter() {
-    const names = [...new Set(people.map((p) => (p.contactBy || "").trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, "ja"));
-    const sel = $("byFilter");
-    sel.textContent = "";
-    const options = [["", "担当者：全員"], [NO_OWNER, "担当者：未定"]].concat(names.map((n) => [n, `担当者：${n}`]));
-    for (const [value, label] of options) {
-      const opt = document.createElement("option");
-      opt.value = value;
-      opt.textContent = label;
-      sel.appendChild(opt);
-    }
+    const names = ownerNames();
     if (byFilter && byFilter !== NO_OWNER && !names.includes(byFilter)) byFilter = "";
-    sel.value = byFilter;
-
-    const dl = $("people");
-    dl.textContent = "";
-    for (const n of names) {
-      const opt = document.createElement("option");
-      opt.value = n;
-      dl.appendChild(opt);
+    const ob = $("ownerChips");
+    ob.textContent = "";
+    const ownerTiles = [].concat(names.map((n) => ({ key: n, label: n, cls: `owner ${ownerCls(n)}`, count: people.filter((p) => ownerOf(p) === n).length })))
+      .concat([{ key: NO_OWNER, label: "未定", cls: "owner none", count: people.filter((p) => !ownerOf(p)).length }]);
+    for (const t of ownerTiles) {
+      const b = el("button", { type: "button", className: `chip ${t.cls}` });
+      b.setAttribute("aria-pressed", String(byFilter === t.key));
+      b.append(t.label, el("span", { className: "num", textContent: t.count }));
+      b.addEventListener("click", () => {
+        byFilter = byFilter === t.key ? "" : t.key;
+        renderAll();
+      });
+      ob.appendChild(b);
     }
   }
 
@@ -239,96 +336,174 @@
     list.textContent = "";
     const items = visiblePeople();
     if (items.length === 0) {
-      const p = document.createElement("p");
-      p.className = "empty";
-      p.textContent = people.length ? "条件に合う人はいません。" : "○がついた候補はまだいません。";
-      list.appendChild(p);
+      list.appendChild(el("p", { className: "empty", textContent: people.length ? "条件に合う人はいません。" : "○がついた候補はまだいません。" }));
       return;
     }
-    const wrap = document.createElement("div");
-    wrap.className = "table-wrap";
-    const table = document.createElement("table");
-    table.innerHTML = "<thead><tr><th>名前</th><th>声がけの状況</th><th>担当者</th><th>備考</th></tr></thead>";
-    const tbody = document.createElement("tbody");
-    for (const p of items) tbody.appendChild(row(p));
-    table.appendChild(tbody);
-    wrap.appendChild(table);
-    list.appendChild(wrap);
-  }
-
-  function cell(cls, child) {
-    const td = document.createElement("td");
-    if (cls) td.className = cls;
-    td.appendChild(child);
-    return td;
+    for (const p of items) list.appendChild(row(p));
   }
 
   function row(p) {
     const st = statusOf(p);
-    const tr = document.createElement("tr");
+    const r = el("div", { className: `grid row ${st.cls}` });
 
-    const name = document.createElement("span");
-    name.textContent = p.name;
+    const who = el("button", { type: "button", className: "who", title: "招待文を開く" });
+    who.setAttribute("aria-label", `${p.name}への招待文を開く`);
+    who.addEventListener("click", () => openInvite(p.id));
+    who.appendChild(el("span", { className: "name", textContent: p.name }));
+    if (p.note) who.appendChild(el("span", { className: "note", textContent: p.note }));
 
-    const status = document.createElement("select");
-    status.className = st.cls;
+    const status = el("select", { className: st.cls });
     status.setAttribute("aria-label", `${p.name}への声がけの状況`);
-    for (const s of STATUSES) {
-      const opt = document.createElement("option");
-      opt.value = s.value;
-      opt.textContent = s.label;
-      opt.selected = st.value === s.value;
-      status.appendChild(opt);
-    }
+    for (const s of STATUSES) status.appendChild(el("option", { value: s.value, textContent: s.short, selected: st.value === s.value }));
 
-    const by = document.createElement("input");
-    by.type = "text";
-    by.maxLength = 30;
-    by.placeholder = "担当者";
-    by.value = p.contactBy || "";
-    by.setAttribute("list", "people");
+    const owner = ownerOf(p);
+    const by = el("select", { className: `by ${owner ? `set ${ownerCls(owner)}` : "unset"}` });
     by.setAttribute("aria-label", `${p.name}の担当者`);
+    by.appendChild(el("option", { value: "", textContent: "未定" }));
+    for (const n of ownerNames()) by.appendChild(el("option", { value: n, textContent: n, selected: owner === n }));
+    if (owner) r.classList.add("has-owner", ownerCls(owner));
 
-    const note = document.createElement("input");
-    note.type = "text";
-    note.maxLength = 200;
-    note.placeholder = "備考";
-    note.value = p.note || "";
+    const isOpen = openNotes.has(p.id);
+    const noteBtn = el("button", { type: "button", className: `icon-btn${p.note ? " has" : ""}`, innerHTML: PENCIL });
+    noteBtn.setAttribute("aria-label", `${p.name}の備考を${isOpen ? "閉じる" : "書く"}`);
+    noteBtn.setAttribute("aria-expanded", String(isOpen));
+
+    const note = el("input", { type: "text", className: "note-edit", maxLength: 200, placeholder: "備考（入力して完了で保存）", value: p.note || "", hidden: !isOpen });
     note.setAttribute("aria-label", `${p.name}の備考`);
+
+    noteBtn.addEventListener("click", () => {
+      if (openNotes.has(p.id)) openNotes.delete(p.id); else openNotes.add(p.id);
+      renderList();
+      if (openNotes.has(p.id)) document.querySelector(`[data-note-for="${CSS.escape(p.id)}"]`)?.focus();
+    });
+    note.dataset.noteFor = p.id;
 
     const saveContact = () => save(p.id, { action: "contact", id: p.id, contactBy: by.value.trim(), contactStatus: status.value });
     by.addEventListener("change", saveContact);
     status.addEventListener("change", saveContact);
-    note.addEventListener("change", () => save(p.id, { action: "note", id: p.id, note: note.value.trim() }));
-    for (const el of [by, note]) {
-      el.addEventListener("keydown", (ev) => {
-        if (ev.key === "Enter" && !ev.isComposing) el.blur();
+    note.addEventListener("change", () => {
+      openNotes.delete(p.id);
+      save(p.id, { action: "note", id: p.id, note: note.value.trim() });
+    });
+    for (const input of [note]) {
+      input.addEventListener("keydown", (ev) => {
+        if (ev.key === "Enter" && !ev.isComposing) input.blur();
       });
     }
 
-    tr.append(cell("name", name), cell("c-status", status), cell("c-by", by), cell("", note));
-    return tr;
+    r.append(who, status, by, noteBtn, note);
+    return r;
   }
 
-  async function save(id, body) {
-    setStatus("保存中…");
+  // ===== 招待文 =====
+  // 元の文面：声がけ文_NOEZ側.txt。〇〇（相手）と□□（送る人）を置き換える
+  const INVITE = `{to}さん
+
+突然のご連絡失礼します。NOEZ FOXXの{from}です。
+
+Foyがプロデュースする居酒屋「博多中洲屋台村 なんしょっと？ 中野北口店」のオープンに先立ち、著名人・インフルエンサーの方限定のVIPレセプションを開きます。ぜひ{to}さんをご招待したく、ご連絡しました。
+
+日時：11月30日（月）19:00〜22:00
+場所：中野（東京都中野区中野5-56-14 岡田ビル2F）
+参加費：無料（お食事・ドリンク無料、交通費支給）
+
+当日はFoyも参加します。特典やタイムテーブルは、こちらにまとめています。
+https://breedclub.github.io/nanshotto-nakano/reception/
+
+ご都合はいかがでしょうか。このメッセージにご返信いただけると助かります。`;
+  const BANNER = "banner.jpg"; // contact/ に置くと招待文の下に表示される
+  const WAIT = "声がけ済み（返事待ち）";
+
+  function fillInvite() {
+    const p = people.find((x) => x.id === $("inviteTo").value);
+    const from = $("inviteFrom").value || "〇〇";
+    $("inviteText").value = INVITE.replaceAll("{to}", p ? p.name : "〇〇").replaceAll("{from}", from);
+    const mark = $("markBtn");
+    mark.hidden = !p || (p.contactStatus || "") !== "";
+    if (p) mark.textContent = `${p.name}さんを「返事待ち」にする`;
+  }
+
+  function openInvite(personId) {
+    const to = $("inviteTo");
+    to.textContent = "";
+    to.appendChild(el("option", { value: "", textContent: "〇〇のまま" }));
+    for (const p of visiblePeople()) to.appendChild(el("option", { value: p.id, textContent: p.name }));
+    to.value = personId || "";
+    const from = $("inviteFrom");
+    from.textContent = "";
+    from.appendChild(el("option", { value: "", textContent: "〇〇のまま" }));
+    for (const o of OWNERS) from.appendChild(el("option", { value: o.name, textContent: o.name }));
+    const p = people.find((x) => x.id === personId);
+    const preset = (p && ownerOf(p)) || (byFilter !== NO_OWNER ? byFilter : "");
+    from.value = OWNERS.some((o) => o.name === preset) ? preset : "";
+    fillInvite();
+    $("invite").showModal();
+  }
+
+  async function copyText(text) {
     try {
-      const saved = await api(body);
-      people = people.map((p) => (p.id === id ? { ...p, ...saved } : p));
-      setError("");
-      // 状況が変わると並び順・人数が変わるので描き直す
-      renderAll();
-      setStatus("保存しました");
+      await navigator.clipboard.writeText(text);
+      return true;
     } catch (e) {
-      setError(`保存できませんでした：${e.message}`);
-      setStatus("");
+      const ta = $("inviteText");
+      ta.focus();
+      ta.select();
+      try { return document.execCommand("copy"); } catch (e2) { return false; }
     }
   }
 
-  $("byFilter").addEventListener("change", (ev) => {
-    byFilter = ev.target.value;
-    renderList();
+  $("inviteBtn").addEventListener("click", () => openInvite(""));
+  $("inviteClose").addEventListener("click", () => $("invite").close());
+  $("invite").addEventListener("click", (ev) => { if (ev.target === $("invite")) $("invite").close(); });
+  $("inviteTo").addEventListener("change", fillInvite);
+  $("inviteFrom").addEventListener("change", fillInvite);
+  $("copyBtn").addEventListener("click", async () => {
+    const ok = await copyText($("inviteText").value);
+    $("inviteHint").textContent = ok ? "コピーしました。DMなどに貼り付けて送ってください。" : "コピーできませんでした。本文を長押しして全選択→コピーしてください。";
   });
+  $("markBtn").addEventListener("click", async () => {
+    const p = people.find((x) => x.id === $("inviteTo").value);
+    if (!p) return;
+    const by = ownerOf(p) || $("inviteFrom").value;
+    await save(p.id, { action: "contact", id: p.id, contactBy: by, contactStatus: WAIT });
+    fillInvite();
+    $("inviteHint").textContent = `${p.name}さんを「返事待ち」${by ? `・担当 ${by}` : ""}にしました。`;
+  });
+
+  // バナー画像。ファイルがあれば表示する
+  const img = $("bannerImg");
+  img.addEventListener("load", () => { $("bannerBox").hidden = false; });
+  img.src = BANNER;
+  $("shareImgBtn").addEventListener("click", async () => {
+    try {
+      const blob = await (await fetch(BANNER)).blob();
+      const file = new File([blob], "なんしょっと_VIPレセプション.jpg", { type: blob.type || "image/jpeg" });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file] });
+        return;
+      }
+      const a = el("a", { href: URL.createObjectURL(blob), download: file.name });
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (e) {
+      if (e.name !== "AbortError") $("inviteHint").textContent = "画像を保存できませんでした。画像を長押しして保存してください。";
+    }
+  });
+
+  async function save(id, body) {
+    say("保存中…");
+    try {
+      const saved = await api(body);
+      people = people.map((p) => (p.id === id ? { ...p, ...saved } : p));
+      // 状況が変わると並び順・人数が変わるので描き直す
+      renderAll();
+      say("保存しました");
+    } catch (e) {
+      say(`保存できませんでした：${e.message}`, true);
+    }
+  }
+
   $("reloadBtn").addEventListener("click", reload);
   reload();
 })();
