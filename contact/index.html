@@ -66,27 +66,28 @@
   button { cursor: pointer; }
   button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-  .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-bottom: 14px; }
-  .tile { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: var(--card); text-align: left; min-height: 0; cursor: pointer; }
-  .tile .num { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; display: block; }
-  .tile .lbl { font-size: 12px; color: var(--muted); }
-  .tile[aria-pressed="true"] { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .summary { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .tile { min-height: 32px; padding: 2px 12px; border-radius: 999px; font-size: 13px; background: var(--card); }
+  .tile .num { font-weight: 700; font-variant-numeric: tabular-nums; margin-left: 4px; }
+  .tile[aria-pressed="true"] { background: var(--accent); color: #fff; border-color: var(--accent); }
 
-  .tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
-  .tools select { flex: 1 1 180px; min-width: 0; }
-  .tools button { flex: 0 0 auto; }
+  .tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 6px; }
+  .tools select { flex: 0 1 220px; min-width: 0; min-height: 36px; padding: 4px 10px; font-size: 14px; }
+  .tools button { flex: 0 0 auto; min-height: 36px; padding: 4px 12px; font-size: 14px; }
 
-  .row { border: 1px solid var(--line); border-radius: 8px; background: var(--card); padding: 10px; margin-bottom: 8px; }
-  .row-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-  .name { font-weight: 700; word-break: break-word; min-width: 0; }
-  .pill { font-size: 12px; font-weight: 600; padding: 2px 10px; border-radius: 999px; white-space: nowrap; }
-  .pill.todo { color: var(--todo); background: var(--todo-bg); }
-  .pill.wait { color: var(--wait); background: var(--wait-bg); }
-  .pill.yes { color: var(--yes); background: var(--yes-bg); }
-  .pill.no { color: var(--no); background: var(--no-bg); }
-  .fields { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-  .fields input, .fields select { flex: 1 1 160px; min-width: 0; font-size: 14px; }
-  .fields .note { flex-basis: 100%; }
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+  table { border-collapse: collapse; width: 100%; min-width: 620px; font-size: 14px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 4px 6px; text-align: left; vertical-align: middle; }
+  thead th { background: var(--head); font-size: 12px; color: var(--muted); font-weight: 600; position: sticky; top: 0; }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.name { font-weight: 700; white-space: nowrap; }
+  td input, td select { width: 100%; min-height: 34px; padding: 4px 8px; font-size: 14px; border-radius: 6px; }
+  td.c-status { width: 190px; }
+  td.c-by { width: 140px; }
+  td select.todo { color: var(--todo); background: var(--todo-bg); }
+  td select.wait { color: var(--wait); background: var(--wait-bg); }
+  td select.yes { color: var(--yes); background: var(--yes-bg); }
+  td select.no { color: var(--no); background: var(--no-bg); }
   .empty { color: var(--muted); font-size: 14px; padding: 12px 0; }
   .foot { margin-top: 20px; font-size: 13px; color: var(--muted); }
   .foot a { color: var(--accent); }
@@ -101,7 +102,6 @@
   <div class="summary" id="summary"></div>
 
   <div class="tools">
-    <label class="lbl" for="byFilter" hidden>担当者で絞り込む</label>
     <select id="byFilter" aria-label="担当者で絞り込む"></select>
     <button type="button" id="reloadBtn">最新にする</button>
   </div>
@@ -187,10 +187,7 @@
       const num = document.createElement("span");
       num.className = "num";
       num.textContent = t.count;
-      const lbl = document.createElement("span");
-      lbl.className = "lbl";
-      lbl.textContent = t.label;
-      b.append(num, lbl);
+      b.append(document.createTextNode(t.label), num);
       b.addEventListener("click", () => {
         statusFilter = statusFilter === t.key || t.key === null ? null : t.key;
         renderSummary();
@@ -248,37 +245,33 @@
       list.appendChild(p);
       return;
     }
-    for (const p of items) list.appendChild(row(p));
+    const wrap = document.createElement("div");
+    wrap.className = "table-wrap";
+    const table = document.createElement("table");
+    table.innerHTML = "<thead><tr><th>名前</th><th>声がけの状況</th><th>担当者</th><th>備考</th></tr></thead>";
+    const tbody = document.createElement("tbody");
+    for (const p of items) tbody.appendChild(row(p));
+    table.appendChild(tbody);
+    wrap.appendChild(table);
+    list.appendChild(wrap);
+  }
+
+  function cell(cls, child) {
+    const td = document.createElement("td");
+    if (cls) td.className = cls;
+    td.appendChild(child);
+    return td;
   }
 
   function row(p) {
     const st = statusOf(p);
-    const box = document.createElement("div");
-    box.className = "row";
+    const tr = document.createElement("tr");
 
-    const head = document.createElement("div");
-    head.className = "row-head";
     const name = document.createElement("span");
-    name.className = "name";
     name.textContent = p.name;
-    const pill = document.createElement("span");
-    pill.className = `pill ${st.cls}`;
-    pill.textContent = st.label;
-    head.append(name, pill);
-    box.appendChild(head);
-
-    const fields = document.createElement("div");
-    fields.className = "fields";
-
-    const by = document.createElement("input");
-    by.type = "text";
-    by.maxLength = 30;
-    by.placeholder = "担当者（声がけする人）";
-    by.value = p.contactBy || "";
-    by.setAttribute("list", "people");
-    by.setAttribute("aria-label", `${p.name}の担当者`);
 
     const status = document.createElement("select");
+    status.className = st.cls;
     status.setAttribute("aria-label", `${p.name}への声がけの状況`);
     for (const s of STATUSES) {
       const opt = document.createElement("option");
@@ -288,9 +281,16 @@
       status.appendChild(opt);
     }
 
+    const by = document.createElement("input");
+    by.type = "text";
+    by.maxLength = 30;
+    by.placeholder = "担当者";
+    by.value = p.contactBy || "";
+    by.setAttribute("list", "people");
+    by.setAttribute("aria-label", `${p.name}の担当者`);
+
     const note = document.createElement("input");
     note.type = "text";
-    note.className = "note";
     note.maxLength = 200;
     note.placeholder = "備考";
     note.value = p.note || "";
@@ -306,9 +306,8 @@
       });
     }
 
-    fields.append(by, status, note);
-    box.appendChild(fields);
-    return box;
+    tr.append(cell("name", name), cell("c-status", status), cell("c-by", by), cell("", note));
+    return tr;
   }
 
   async function save(id, body) {
