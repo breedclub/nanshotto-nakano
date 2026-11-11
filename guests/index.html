@@ -83,6 +83,15 @@
     "カスパイ": "カスタードパイ",
   };
   const display = (name) => `${OFFICIAL[name] || name}様`;
+  // 並び順用の読み（あいうえお順）。ここに無い人は表示名で並べる
+  const READING = {
+    "銀太": "ぎんた", "ハテニャン": "はてにゃん", "ホモサピ": "ほもさぴ", "相馬トランジスタ": "そうまとらんじすた",
+    "中町JP": "なかまちじぇーぴー", "ブチギレの坂本": "じーじーちゃんねるさかもと", "カマタク": "かまたく",
+    "じんたん": "すかいぴーすいに", "たけやき翔": "たけやきしょう", "ブチギレ宇治原": "じーじーちゃんねるうじはら",
+    "石川典行": "いしかわのりゆき", "OOODA": "おーだ", "カスパイ": "かすたーどぱい", "七五三掛": "しめかけ",
+    "彫り師": "ほりし", "妹尾": "せのおゆうか", "MY": "えむわい", "カジサック": "かじさっく", "たっくーTV": "たっくー",
+  };
+  const yomi = (name) => READING[name] || OFFICIAL[name] || name;
 
   // LINE内ブラウザ等でGoogleがJSONでなく中間ページを返すことがあるので、読み直して最大3回試す
   async function load() {
@@ -102,9 +111,8 @@
   load()
     .then((out) => {
       if (!out.ok) throw new Error(out.error || "");
-      // 確定 → 声かけ中、同じ中は名前順
-      const rank = (g) => (g.status === "確定" ? 0 : 1);
-      const guests = out.data.slice().sort((a, b) => rank(a) - rank(b) || (OFFICIAL[a.name] || a.name).localeCompare(OFFICIAL[b.name] || b.name, "ja"));
+      // 名前の読みのあいうえお順
+      const guests = out.data.slice().sort((a, b) => yomi(a.name).localeCompare(yomi(b.name), "ja"));
       const list = $("list");
       for (const g of guests) {
         const li = document.createElement("li");
